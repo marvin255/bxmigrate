@@ -27,8 +27,19 @@ class SymphonyUp extends Command
 		$count = (int) $input->getArgument('count');
 		$count = $count ? $count : null;
 		
-		//
+		if (!defined('CLI_MIGRATIONS_PATH') || empty(CLI_MIGRATIONS_PATH)) {
+			$output->writeln('<error>Please set up CLI_MIGRATIONS_PATH constant</error>');
+		} else {
+			$repo = new \marvin255\bxmigrate\migrateRepo\Files([
+				'folder' => CLI_MIGRATIONS_PATH,
+			]);
+			$checker = new \marvin255\bxmigrate\migrateChecker\File([
+				'file' => CLI_MIGRATIONS_PATH . '/migrations_checker.txt',
+			]);
+			$manager = new \marvin255\bxmigrate\migrateManager\Simple($repo, $checker);
+			$manager->up($count);
+			$output->writeln('<info>Migrations set up</info>');
+		}
 
-		$output->writeln('<info>Migrations set up</info>');
 	}
 }
