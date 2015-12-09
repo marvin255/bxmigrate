@@ -1,0 +1,19 @@
+{
+	"name": "marvin255/bxmigrate",
+	"description": "Миграции для битрикс",
+	"type": "library",
+	"keywords": ["bitrix", "migrations", "битрикс", "миграции"],
+	"license": "MIT",
+	"require": {
+		"php": ">=5.3.2"
+	},
+	"autoload": {
+		"psr-4": { "marvin255\\bxmigrate\\": "lib/" }
+	},
+	"repositories": [
+		{
+			"type": "git",
+			"url": "https://github.com/marvin255/bxmigrate"
+		}
+	]
+}
