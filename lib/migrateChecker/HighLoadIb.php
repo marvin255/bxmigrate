@@ -104,6 +104,8 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
 	protected function compileEntity(array $hlblock)
 	{
 		if ($this->_compiledEntity === null) {
+			global $USER_FIELD_MANAGER;
+			$USER_FIELD_MANAGER->CleanCache();
 			$entity = \Bitrix\Highloadblock\HighloadBlockTable::compileEntity($hlblock);
 			$this->_compiledEntity = $entity->getDataClass();
 		}
@@ -150,7 +152,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
 		//название миграции
 		if (empty($fields['UF_MIGRATION_NAME'])) {
 			$obUserField = new CUserTypeEntity;
-			$id = $obUserField->Add([
+			$idRes = $obUserField->Add([
 				'USER_TYPE_ID' => 'string',
 				'ENTITY_ID' => "HLBLOCK_{$id}",
 				'FIELD_NAME' => 'UF_MIGRATION_NAME',
@@ -158,12 +160,13 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
 					'ru' => 'Название миграции',
 				]
 			]);
+			if (!$idRes) throw new \marvin255\bxmigrate\Exception('Can\'t create UF_MIGRATION_NAME property');
 		}
 
 		//дата миграции
 		if (empty($fields['UF_MIGRATION_DATE'])) {
 			$obUserField = new CUserTypeEntity;
-			$id = $obUserField->Add([
+			$idRes = $obUserField->Add([
 				'USER_TYPE_ID' => 'string',
 				'ENTITY_ID' => "HLBLOCK_{$id}",
 				'FIELD_NAME' => 'UF_MIGRATION_DATE',
@@ -171,6 +174,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
 					'ru' => 'Дата миграции',
 				]
 			]);
+			if (!$idRes) throw new \marvin255\bxmigrate\Exception('Can\'t create UF_MIGRATION_DATE property');
 		}
 
 		return ['ID' => $id, 'NAME' => $modelName, 'TABLE_NAME' => $table];
