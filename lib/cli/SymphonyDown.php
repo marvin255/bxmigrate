@@ -33,9 +33,7 @@ class SymphonyDown extends Command
 			$repo = new \marvin255\bxmigrate\migrateRepo\Files([
 				'folder' => CLI_MIGRATIONS_PATH,
 			]);
-			$checker = new \marvin255\bxmigrate\migrateChecker\File([
-				'file' => CLI_MIGRATIONS_PATH . '/migrations_checker.txt',
-			]);
+			$checker = new \marvin255\bxmigrate\migrateChecker\HighLoadIb();
 			$manager = new \marvin255\bxmigrate\migrateManager\Simple($repo, $checker);
 			$manager->down($count);
 			$output->writeln('<info>Migrations set down</info>');

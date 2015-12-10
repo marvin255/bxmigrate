@@ -74,7 +74,7 @@ class Files implements \marvin255\bxmigrate\IMigrateRepo
 		$mName = str_replace(['.', '/', '\\'], '_', trim($mName));
 		$name = $mName;
 		if ($name !== '') {
-			$name = $this->getFilePrefix() . $name . '_' . time();
+			$name = $this->getFilePrefix() . time() . '_' . $name;
 			$fileName = $this->getFolder() . DIRECTORY_SEPARATOR . "{$name}.php";
 			if (file_exists($fileName)) {
 				throw new \marvin255\bxmigrate\Exception('Migration already exists');

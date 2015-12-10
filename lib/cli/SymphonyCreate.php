@@ -32,9 +32,7 @@ class SymphonyCreate extends Command
 			$repo = new \marvin255\bxmigrate\migrateRepo\Files([
 				'folder' => CLI_MIGRATIONS_PATH,
 			]);
-			$checker = new \marvin255\bxmigrate\migrateChecker\File([
-				'file' => CLI_MIGRATIONS_PATH . '/migrations_checker.txt',
-			]);
+			$checker = new \marvin255\bxmigrate\migrateChecker\HighLoadIb();
 			$manager = new \marvin255\bxmigrate\migrateManager\Simple($repo, $checker);
 			$manager->create($name);
 			$output->writeln('<info>Migration created</info>');
