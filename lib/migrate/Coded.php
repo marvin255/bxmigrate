@@ -20,6 +20,73 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 
 
 	/**
+	 * @var array $data
+	 * @var bool $deleteIfExists
+	 */
+	protected function UserGroupCreate(array $data, $deleteIfExists = false)
+	{
+		if (empty($data['STRING_ID'])) throw new \Exception('You must set group STRING_ID');
+		$fire = false;
+		if ($this->UserGetGroupIdByCode($data['STRING_ID'])) {
+			if ($deleteIfExists) {
+				$this->UserGroupDelete($data['STRING_ID']);
+				$fire = true;
+			}
+		} else {
+			$fire = true;
+		}
+		if ($fire) {
+			$ib = new \CGroup;
+			$id = $ib->Add(array_merge([
+				'ACTIVE' => 'Y',
+			], $data));
+			if ($id) {
+				echo "Add {$data['STRING_ID']} users group\r\n";
+			} else {
+				throw new \Exception("Can't create {$data['STRING_ID']} users group");
+			}
+		}
+	}
+
+	/**
+	 * @var string $group
+	 */
+	protected function UserGroupDelete($group)
+	{
+		$id = $this->UserGetGroupIdByCode($group);
+		if ($id) {
+			global $DB;
+			$group = new \CGroup;
+			$DB->StartTransaction();
+			if (!$group->Delete($id)) {
+				$DB->Rollback();
+				$error = "Can't delete group {$group}";
+			}
+			$DB->Commit();
+			echo "Delete group {$group}";
+			if (isset($error)) throw new \Exception($error);
+		}
+	}
+
+	/**
+	 * @var string $param
+	 * @return int
+	 */
+	protected function UserGetGroupIdByCode($code)
+	{
+		$rsGroups = \CGroup::GetList(($by = 'c_sort'), ($order = 'desc'), [
+			'STRING_ID' => $code,
+		]);
+		if ($ob = $rsGroups->Fetch()) {
+			return $ob['ID'];
+		} else {
+			return null;
+		}
+	}
+
+
+
+	/**
 	 * @var string $iblock
 	 * @var array $data
 	 * @var bool $deleteIfExists
@@ -177,11 +244,12 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 			$DB->StartTransaction();
 			if (!\CIBlock::Delete($ob['ID'])) {
 				$DB->Rollback();
-				throw new \Exception("Can't delete {$name} iblock");
+				$error = "Can't delete {$name} iblock";
 			} else {
-				$DB->Commit();
-				echo "Delete {$name} iblock\r\n";
+				echo "Delete {$name} iblock\r\n";				
 			}
+			$DB->Commit();
+			if (isset($error)) throw new \Exception($error);
 		}
 	}
 
@@ -237,11 +305,12 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 			], $data));
 			if (!$res) {
 				$DB->Rollback();
-				throw new \Exception("Can't create {$name} iblock type");
+				$error = "Can't create {$name} iblock type";
 			} else {
-				$DB->Commit();
 				echo "Add {$name} iblock type\r\n";
 			}
+			$DB->Commit();
+			if (isset($error)) throw new \Exception($error);
 		}
 
 		return $name;
@@ -259,10 +328,11 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 		$DB->StartTransaction();
 		if (!\CIBlockType::Delete($name)) {
 			$DB->Rollback();
-			throw new \Exception("Can't delete {$name} iblock type");
+			$error = "Can't delete {$name} iblock type";
 		} else {
 			echo "Delete {$name} iblock type\r\n";
-			$DB->Commit();
 		}
+		$DB->Commit();
+		if (isset($error)) throw new \Exception($error);
 	}
 }
