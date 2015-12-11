@@ -22,7 +22,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 	/**
 	 * @var string $code
 	 */
-	protected function IblockCreate(array $data, $deleteIfExists = true)
+	protected function IblockCreate(array $data, array $fields = null, $deleteIfExists = true)
 	{
 		global $DB;
 
@@ -67,12 +67,29 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 			], $data));
 			if ($id) {
 				echo "Add {$name} iblock\r\n";
+				if ($id && $fields) $this->IblockSetFields($name, $fields);
 			} else {
 				throw new \Exception("Can't create {$name} iblock type");
 			}
 		}
 
 		return $id;
+	}
+
+	/**
+	 * @param string $code
+	 * @param array $fields
+	 */
+	protected function IblockSetFields($code, array $fields)
+	{
+		$id = $this->IblockGetIdByCode($code);
+		if ($id) {
+			$old_fields = \CIBlock::getFields($id);
+			$fields = array_merge($old_fields, $fields);
+			\CIBlock::setFields($id, $fields);
+		} else {
+			throw new \Exception("Can't set fields for {$code} iblock");
+		}
 	}
 
 	/**
@@ -96,6 +113,23 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 				$DB->Commit();
 				echo "Delete {$name} iblock\r\n";
 			}
+		}
+	}
+
+	/**
+	 * @var string $param
+	 * @return int
+	 */
+	protected function IblockGetIdByCode($code)
+	{
+		$res = \CIBlock::GetList([], [
+			'CODE' => $name,
+			'CHECK_PERMISSIONS' => 'N',
+		]);
+		if ($ob = $res->Fetch()) {
+			return $ob['ID'];
+		} else {
+			return null;
 		}
 	}
 
