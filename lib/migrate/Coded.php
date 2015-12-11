@@ -46,7 +46,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 		}
 
 		if ($fire) {
-			$rsSite = \CSite::GetList($by = 'sort', $order = 'desc', ['ACTIVE' => 'Y']);
+			$rsSite = \CSite::GetList($by = 'sort', $order = 'desc', ['DEFAULT' => 'Y']);
 			$sites = [];
 			while ($obSite = $rsSite->Fetch()) {
 				$sites[] = $obSite['LID'];
