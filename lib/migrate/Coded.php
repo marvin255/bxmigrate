@@ -20,9 +20,78 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 
 
 	/**
-	 * @var string $code
+	 * @var string $iblock
+	 * @var array $data
+	 * @var bool $deleteIfExists
 	 */
-	protected function IblockCreate(array $data, array $fields = null, $deleteIfExists = true)
+	protected function IblockPropertyCreate($iblock, array $data, $deleteIfExists = false)
+	{
+		$ibId = $this->IblockGetIdByCode($iblock);
+
+		if (empty($data['CODE'])) throw new \Exception('You must set property CODE');
+
+		if ($ibId) {
+			$fire = false;
+			$res = \CIBlockProperty::GetList([], [
+				'CODE' => $data['CODE'],
+				'IBLOCK_ID' => $ibId,
+				'CHECK_PERMISSIONS' => 'N',
+			]);
+			if ($ob = $res->Fetch()) {
+				if ($deleteIfExists) {
+					$this->IblockPropertyDelete($iblock, $data['CODE']);
+					$fire = true;
+				}
+			} else {
+				$fire = true;
+			}
+			if ($fire) {
+				$ib = new \CIBlockProperty;
+				$id = $ib->Add(array_merge([
+					'IBLOCK_ID' => $ibId,
+					'CODE' => $data['CODE'],
+					'XML_ID' => $data['CODE'],
+					'ACTIVE' => 'Y',
+				], $data));
+				if ($id) {
+					echo "Add {$data['CODE']} iblock property\r\n";
+				} else {
+					throw new \Exception("Can't create {$data['CODE']} iblock property");
+				}
+			}
+		} else {
+			throw new \Exception("Can't find iblock {$iblock}");
+		}
+	}
+
+	/**
+	 * @param string $iblock
+	 * @param string $code
+	 */
+	protected function IblockPropertyDelete($iblock, $code)
+	{
+		$ibId = $this->IblockGetIdByCode($iblock);
+		if (!$ibId) throw new \Exception("Can't find iblock {$iblock}");
+		$res = \CIBlockProperty::GetList([], [
+			'CODE' => $code,
+			'IBLOCK_ID' => $ibId,
+			'CHECK_PERMISSIONS' => 'N',
+		]);
+		if ($ob = $res->Fetch()) {
+			if (!CIBlockProperty::Delete($ob['ID'])) {
+				throw new \Exception("Can't delete iblock property {$code}");
+			}
+		}
+	}
+
+
+
+	/**
+	 * @var array $data
+	 * @var array $fields
+	 * @var bool $deleteIfExists
+	 */
+	protected function IblockCreate(array $data, array $fields = null, $deleteIfExists = false)
 	{
 		global $DB;
 
@@ -123,7 +192,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 	protected function IblockGetIdByCode($code)
 	{
 		$res = \CIBlock::GetList([], [
-			'CODE' => $name,
+			'CODE' => $code,
 			'CHECK_PERMISSIONS' => 'N',
 		]);
 		if ($ob = $res->Fetch()) {
@@ -139,7 +208,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 	 * @param array $data
 	 * @param bool $deleteIfExists
 	 */
-	protected function IblockTypeCreate(array $data, $deleteIfExists = true)
+	protected function IblockTypeCreate(array $data, $deleteIfExists = false)
 	{
 		global $DB;
 
