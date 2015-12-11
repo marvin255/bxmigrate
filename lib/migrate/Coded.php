@@ -20,6 +20,77 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 
 
 	/**
+	 * @param string $entity
+	 * @param array $data
+	 * @var bool $deleteIfExists
+	 */
+	protected function UFCreate(array $data, $deleteIfExists = false)
+	{
+		if (empty($data['FIELD_NAME'])) throw new \Exception('You must set group FIELD_NAME');
+		if (empty($data['ENTITY_ID'])) throw new \Exception('You must set group ENTITY_ID');
+		$fire = false;
+		if ($this->UFGetIdByCode($data['ENTITY_ID'], $data['FIELD_NAME'])) {
+			if ($deleteIfExists) {
+				$this->UFDelete($data['ENTITY_ID'], $data['FIELD_NAME']);
+				$fire = true;
+			}
+		} else {
+			$fire = true;
+		}
+		if ($fire) {
+			$ib = new \CUserTypeEntity;
+			$id = $ib->Add(array_merge([
+				'USER_TYPE_ID' => 'string',
+			], $data));
+			if ($id) {
+				echo "Add {$data['FIELD_NAME']} user field\r\n";
+			} else {
+				throw new \Exception("Can't create {$data['FIELD_NAME']} user field");
+			}
+		}
+	}
+
+	/**
+	 * @var string $entity
+	 * @var string $code
+	 */
+	protected function UFDelete($entity, $code)
+	{
+		$id = $this->UFGetIdByCode($entity, $code);
+		if ($id) {
+			global $DB;
+			$group = new \CUserTypeEntity;
+			$DB->StartTransaction();
+			if (!$group->Delete($id)) {
+				$DB->Rollback();
+				$error = "Can't delete user field {$code}";
+			}
+			$DB->Commit();
+			echo "Delete user field {$code}\r\n";
+			if (isset($error)) throw new \Exception($error);
+		}
+	}
+
+	/**
+	 * @var string $entity
+	 * @var string $code
+	 */
+	protected function UFGetIdByCode($entity, $code)
+	{
+		$rsData = \CUserTypeEntity::GetList([], [
+			'ENTITY_ID' => $entity,
+			'FIELD_NAME' => $code,
+		]);
+		if ($ob = $rsData->GetNext()) {
+			return $ob['ID'];
+		} else {
+			return null;
+		}
+	}
+
+
+
+	/**
 	 * @var array $data
 	 * @var bool $deleteIfExists
 	 */
@@ -51,19 +122,19 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 	/**
 	 * @var string $group
 	 */
-	protected function UserGroupDelete($group)
+	protected function UserGroupDelete($groupName)
 	{
-		$id = $this->UserGetGroupIdByCode($group);
+		$id = $this->UserGetGroupIdByCode($groupName);
 		if ($id) {
 			global $DB;
 			$group = new \CGroup;
 			$DB->StartTransaction();
 			if (!$group->Delete($id)) {
 				$DB->Rollback();
-				$error = "Can't delete group {$group}";
+				$error = "Can't delete group {$groupName}";
 			}
 			$DB->Commit();
-			echo "Delete group {$group}";
+			echo "Delete group {$groupName}";
 			if (isset($error)) throw new \Exception($error);
 		}
 	}
