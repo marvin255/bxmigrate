@@ -26,6 +26,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 	 */
 	protected function UFCreate(array $data, $deleteIfExists = false)
 	{
+		global $USER_FIELD_MANAGER;
 		if (empty($data['FIELD_NAME'])) throw new \Exception('You must set group FIELD_NAME');
 		if (empty($data['ENTITY_ID'])) throw new \Exception('You must set group ENTITY_ID');
 		$fire = false;
@@ -44,6 +45,15 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 			], $data));
 			if ($id) {
 				echo "Add {$data['FIELD_NAME']} user field\r\n";
+				if (
+					!empty($data['LIST'])
+					&& ($arType = $USER_FIELD_MANAGER->GetUserType($data['USER_TYPE_ID']))
+					&& $arType['BASE_TYPE'] == 'enum'
+				){
+					$obEnum = new \CUserFieldEnum;
+					$res = $obEnum->SetEnumValues($id, $data['LIST']);
+					echo "Add {$data['FIELD_NAME']} user field list\r\n";
+				}
 			} else {
 				throw new \Exception("Can't create {$data['FIELD_NAME']} user field");
 			}
