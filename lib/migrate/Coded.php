@@ -226,7 +226,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 			'CHECK_PERMISSIONS' => 'N',
 		]);
 		if ($ob = $res->Fetch()) {
-			if (!CIBlockProperty::Delete($ob['ID'])) {
+			if (!\CIBlockProperty::Delete($ob['ID'])) {
 				throw new \Exception("Can't delete iblock property {$code}");
 			}
 		}
