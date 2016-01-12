@@ -20,6 +20,22 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 
 
 	/**
+	 * @param array $params
+	 */
+	protected function IblockSectionCreate(array $params)
+	{
+		$bs = new \CIBlockSection;
+		$res = $bs->Add($params);
+		if (!$res) {
+			throw new \Exception($bs->LAST_ERROR);
+		} else {
+			return $res;
+		}
+	}
+
+
+
+	/**
 	 * @param string $entity
 	 * @param array $data
 	 * @var bool $deleteIfExists
