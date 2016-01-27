@@ -310,6 +310,39 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 	}
 
 	/**
+	 * @var array $data
+	 * @var array $fields
+	 * @var bool $deleteIfExists
+	 */
+	protected function IblockUpdate(array $data, array $fields = null)
+	{
+		global $DB;
+
+		if (empty(trim($data['CODE']))) throw new \Exception('You must set iblock CODE');
+		$name = trim($data['CODE']);
+
+		$fire = false;
+		$res = \CIBlock::GetList([], [
+			'CODE' => $name,
+			'CHECK_PERMISSIONS' => 'N',
+		]);
+		if ($ob = $res->Fetch()) {
+			$ib = new \CIBlock;
+			$id = $ib->Update($ob['ID'], $data);
+			if ($id) {
+				echo "Update {$name} iblock\r\n";
+				if ($id && $fields) $this->IblockSetFields($name, $fields);
+			} else {
+				throw new \Exception("Can't create {$name} iblock type");
+			}
+		} else {
+			throw new \Exception("Iblock don't exists");
+		}
+
+		return $id;
+	}
+
+	/**
 	 * @param string $code
 	 * @param array $fields
 	 */
