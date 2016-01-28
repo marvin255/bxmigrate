@@ -77,6 +77,37 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 	}
 
 	/**
+	 * @param string $entity
+	 * @param array $data
+	 * @var bool $deleteIfExists
+	 */
+	protected function UFUpdate(array $data)
+	{
+		global $USER_FIELD_MANAGER;
+		if (empty($data['FIELD_NAME'])) throw new \Exception('You must set group FIELD_NAME');
+		if (empty($data['ENTITY_ID'])) throw new \Exception('You must set group ENTITY_ID');
+		$fire = false;
+		if ($id = $this->UFGetIdByCode($data['ENTITY_ID'], $data['FIELD_NAME'])) {
+			$ib = new \CUserTypeEntity;
+			$id = $ib->Update($id, $data);
+			if ($id) {
+				echo "Update {$data['FIELD_NAME']} user field\r\n";
+				if (
+					!empty($data['LIST'])
+					&& ($arType = $USER_FIELD_MANAGER->GetUserType($data['USER_TYPE_ID']))
+					&& $arType['BASE_TYPE'] == 'enum'
+				){
+					$obEnum = new \CUserFieldEnum;
+					$res = $obEnum->SetEnumValues($id, $data['LIST']);
+					echo "Update {$data['FIELD_NAME']} user field list\r\n";
+				}
+			}
+		} else {
+			throw new \Exception("Can't update {$data['FIELD_NAME']} user field");
+		}
+	}
+
+	/**
 	 * @var string $entity
 	 * @var string $code
 	 */
