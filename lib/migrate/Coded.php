@@ -260,6 +260,40 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 	}
 
 	/**
+	 * @var string $iblock
+	 * @var array $data
+	 * @var bool $deleteIfExists
+	 */
+	protected function IblockPropertyUpdate($iblock, array $data)
+	{
+		$ibId = $this->IblockGetIdByCode($iblock);
+
+		if (empty($data['CODE'])) throw new \Exception('You must set property CODE');
+
+		if ($ibId) {
+			$fire = false;
+			$res = \CIBlockProperty::GetList([], [
+				'CODE' => $data['CODE'],
+				'IBLOCK_ID' => $ibId,
+				'CHECK_PERMISSIONS' => 'N',
+			]);
+			if ($ob = $res->Fetch()) {
+				$ib = new \CIBlockProperty;
+				$id = $ib->Update($ob['ID'], $data);
+				if ($id) {
+					echo "Update {$data['CODE']} iblock property\r\n";
+				} else {
+					throw new \Exception("Can't update {$data['CODE']} iblock property");
+				}
+			} else {
+				throw new \Exception("Can't find {$data['CODE']} iblock property");
+			}
+		} else {
+			throw new \Exception("Can't find iblock {$iblock}");
+		}
+	}
+
+	/**
 	 * @param string $iblock
 	 * @param string $code
 	 */
