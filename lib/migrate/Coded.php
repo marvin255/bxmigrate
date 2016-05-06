@@ -441,7 +441,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 				$DB->Rollback();
 				$error = "Can't delete {$name} iblock";
 			} else {
-				echo "Delete {$name} iblock\r\n";				
+				echo "Delete {$name} iblock\r\n";
 			}
 			$DB->Commit();
 			if (isset($error)) throw new \Exception($error);
@@ -509,6 +509,37 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
 		}
 
 		return $name;
+	}
+
+	/**
+	 * @param string $name
+	 */
+	protected function IblockTypeUpdate($data)
+	{
+		global $DB;
+
+		if (empty(trim($data['ID']))) throw new \Exception('You must set iblock type ID');
+		$name = trim($data['ID']);
+
+		$res = \CIBlockType::GetList([], [
+			'=ID' => $name,
+		]);
+		if ($ob = $res->Fetch()) {
+			$ib = new \CIBlockType;
+			$DB->StartTransaction();
+			$id = $ib->Update($ob['ID'], $data);
+			if ($id) {
+				$DB->Commit();
+				echo "Update {$name} iblock type\r\n";
+			} else {
+				$DB->Rollback();
+				throw new \Exception("Can't create {$name} iblock type");
+			}
+		} else {
+			throw new \Exception("Iblock type don't exists");
+		}
+
+		return $id;
 	}
 
 	/**
