@@ -142,6 +142,9 @@ class Files implements \marvin255\bxmigrate\IMigrateRepo
         $return = null;
         $viewsDir = dirname(dirname(__DIR__)).'/views';
         $smartViews = [
+            'iblock_uf_property_create' => '/^create_iblock_(.+)_uf_(.+)$/i',
+            'iblock_uf_property_update' => '/^update_iblock_(.+)_uf_(.+)$/i',
+            'iblock_uf_property_delete' => '/^delete_iblock_(.+)_uf_(.+)$/i',
             'iblock_property_create' => '/^create_iblock_(.+)_property_(.+)$/i',
             'iblock_property_update' => '/^update_iblock_(.+)_property_(.+)$/i',
             'iblock_property_delete' => '/^delete_iblock_(.+)_property_(.+)$/i',
