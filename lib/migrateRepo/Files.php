@@ -72,7 +72,7 @@ class Files implements \marvin255\bxmigrate\IMigrateRepo
     public function create($mName)
     {
         $mName = str_replace(['.', '/', '\\', ' '], '_', trim($mName));
-        $name = $mName;
+        $name = preg_replace('/[^0-9a-z_]/i', '_', $mName);
         if ($name !== '') {
             $name = $this->getFilePrefix() . time() . '_' . $name;
             $fileName = $this->getFolder() . DIRECTORY_SEPARATOR . "{$name}.php";
