@@ -153,6 +153,14 @@ class Files implements \marvin255\bxmigrate\IMigrateRepo
             'iblock_create' => '/^create_iblock_(.+)$/i',
             'iblock_update' => '/^update_iblock_(.+)$/i',
             'iblock_delete' => '/^create_iblock_(.+)$/i',
+
+            'hlblock_property_create' => '/^create_hlblock_(.+)_property_(.+)$/i',
+            'hlblock_property_update' => '/^update_hlblock_(.+)_property_(.+)$/i',
+            'hlblock_property_delete' => '/^delete_hlblock_(.+)_property_(.+)$/i',
+            'hlblock_create' => '/^create_hlblock_(.+)$/i',
+            'hlblock_update' => '/^update_hlblock_(.+)$/i',
+            'hlblock_delete' => '/^create_hlblock_(.+)$/i',
+
             'module_install' => '/^install_module_(.+)$/i',
             'module_delete' => '/^delete_module_(.+)$/i',
         ];
