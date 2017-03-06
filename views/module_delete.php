@@ -1,6 +1,8 @@
-<?php echo "<?php\r\n";?>
+<?php echo "<?php\r\n"; ?>
 
-class <?php echo $name; if (!empty($parentClass)) echo " extends {$parentClass}"; echo "\r\n"; ?>
+class <?php echo $name; if (!empty($parentClass)) {
+    echo " extends {$parentClass}";
+} echo "\r\n"; ?>
 {
     public function up()
     {

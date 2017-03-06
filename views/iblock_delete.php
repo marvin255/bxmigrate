@@ -1,17 +1,19 @@
-<?php echo "<?php\r\n";?>
+<?php echo "<?php\r\n"; ?>
 
-class <?php echo $name; if (!empty($parentClass)) echo " extends {$parentClass}"; echo "\r\n"; ?>
+class <?php echo $name; if (!empty($parentClass)) {
+    echo " extends {$parentClass}";
+} echo "\r\n"; ?>
 {
     public function up()
     {
-        $this->IblockDelete('<?php echo mb_strtolower($smart_param_1);?>');
+        $this->IblockDelete('<?php echo mb_strtolower($smart_param_1); ?>');
     }
 
     public function down()
     {
         $this->IblockCreate([
-            'CODE' => '<?php echo mb_strtolower($smart_param_1);?>',
-            'NAME' => '<?php echo ucfirst($smart_param_1);?>',
+            'CODE' => '<?php echo mb_strtolower($smart_param_1); ?>',
+            'NAME' => '<?php echo ucfirst($smart_param_1); ?>',
             'SORT' => 500,
             'IBLOCK_TYPE_ID' => '', //insert your iblock type id
             'VERSION' => 2,

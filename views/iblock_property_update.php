@@ -1,13 +1,15 @@
-<?php echo "<?php\r\n";?>
+<?php echo "<?php\r\n"; ?>
 
-class <?php echo $name; if (!empty($parentClass)) echo " extends {$parentClass}"; echo "\r\n"; ?>
+class <?php echo $name; if (!empty($parentClass)) {
+    echo " extends {$parentClass}";
+} echo "\r\n"; ?>
 {
     public function up()
     {
         $this->IblockPropertyUpdate(
-            '<?php echo mb_strtolower($smart_param_1);?>',
+            '<?php echo mb_strtolower($smart_param_1); ?>',
             [
-                'CODE' => '<?php echo mb_strtolower($smart_param_2);?>',
+                'CODE' => '<?php echo mb_strtolower($smart_param_2); ?>',
             ]
         );
     }
@@ -15,9 +17,9 @@ class <?php echo $name; if (!empty($parentClass)) echo " extends {$parentClass}"
     public function down()
     {
         $this->IblockPropertyUpdate(
-            '<?php echo mb_strtolower($smart_param_1);?>',
+            '<?php echo mb_strtolower($smart_param_1); ?>',
             [
-                'CODE' => '<?php echo mb_strtolower($smart_param_2);?>',
+                'CODE' => '<?php echo mb_strtolower($smart_param_2); ?>',
             ]
         );
     }

@@ -1,3 +1,7 @@
 index.php
 migrate_*
 migrations_checker.txt
+vendor
+composer.lock
+tests/coverage
+.php_cs.cache
