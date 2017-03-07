@@ -438,66 +438,48 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     }
 
     /**
-     * @var array
+     * @var array $data
      * @var array $fields
-     * @var bool  $deleteIfExists
      */
-    protected function IblockCreate(array $data, array $fields = null, $deleteIfExists = false)
+    protected function IblockCreate(array $data, array $fields = null)
     {
-        global $DB;
-
+        $return = [];
         if (empty(trim($data['CODE']))) {
             throw new Exception('You must set iblock CODE');
         }
-        $name = trim($data['CODE']);
-
-        $fire = false;
-        $res = \CIBlock::GetList([], [
-            'CODE' => $name,
-            'CHECK_PERMISSIONS' => 'N',
-        ]);
+        $res = \CIBlock::GetList([], ['CODE' => $data['CODE'], 'CHECK_PERMISSIONS' => 'N']);
         if ($ob = $res->Fetch()) {
-            if ($deleteIfExists) {
-                $this->IblockDelete($name);
-                $fire = true;
-            } else {
-                $id = $ob['ID'];
+            throw new Exception('Iblock '.$data['CODE'].' already exists');
+        }
+        $rsSite = \CSite::GetList($by = 'sort', $order = 'desc', ['DEFAULT' => 'Y']);
+        $sites = [];
+        while ($obSite = $rsSite->Fetch()) {
+            $sites[] = $obSite['LID'];
+        }
+        $ib = new \CIBlock();
+        $id = $ib->Add(array_merge([
+            'ACTIVE' => 'Y',
+            'CODE' => $data['CODE'],
+            'XML_ID' => $data['CODE'],
+            'LID' => $sites[0],
+            'LIST_PAGE_URL' => '',
+            'DETAIL_PAGE_URL' => '',
+            'SECTION_PAGE_URL' => '',
+            'CANONICAL_PAGE_URL' => '',
+            'SORT' => 500,
+            'INDEX_ELEMENT' => 'N',
+            'INDEX_SECTION' => 'N',
+        ], $data));
+        if ($id) {
+            $return[] = "Add {$data['CODE']} iblock";
+            if ($id && $fields) {
+                $return = array_merge($return, $this->IblockSetFields($data['CODE'], $fields));
             }
         } else {
-            $fire = true;
+            throw new Exception("Can't create {$data['CODE']} iblock type");
         }
 
-        if ($fire) {
-            $rsSite = \CSite::GetList($by = 'sort', $order = 'desc', ['DEFAULT' => 'Y']);
-            $sites = [];
-            while ($obSite = $rsSite->Fetch()) {
-                $sites[] = $obSite['LID'];
-            }
-            $ib = new \CIBlock();
-            $id = $ib->Add(array_merge([
-                'ACTIVE' => 'Y',
-                'CODE' => $name,
-                'XML_ID' => $name,
-                'LID' => $sites[0],
-                'LIST_PAGE_URL' => '',
-                'DETAIL_PAGE_URL' => '',
-                'SECTION_PAGE_URL' => '',
-                'CANONICAL_PAGE_URL' => '',
-                'SORT' => 500,
-                'INDEX_ELEMENT' => 'N',
-                'INDEX_SECTION' => 'N',
-            ], $data));
-            if ($id) {
-                echo "Add {$name} iblock";
-                if ($id && $fields) {
-                    $this->IblockSetFields($name, $fields);
-                }
-            } else {
-                throw new Exception("Can't create {$name} iblock type");
-            }
-        }
-
-        return $id;
+        return $return;
     }
 
     /**
@@ -507,34 +489,27 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
      */
     protected function IblockUpdate(array $data, array $fields = null)
     {
-        global $DB;
-
+        $return = [];
         if (empty(trim($data['CODE']))) {
             throw new Exception('You must set iblock CODE');
         }
-        $name = trim($data['CODE']);
-
-        $fire = false;
-        $res = \CIBlock::GetList([], [
-            'CODE' => $name,
-            'CHECK_PERMISSIONS' => 'N',
-        ]);
+        $res = \CIBlock::GetList([], ['CODE' => $data['CODE'], 'CHECK_PERMISSIONS' => 'N']);
         if ($ob = $res->Fetch()) {
             $ib = new \CIBlock();
             $id = $ib->Update($ob['ID'], $data);
             if ($id) {
-                echo "Update {$name} iblock";
+                $return[] = "Update {$data['CODE']} iblock";
                 if ($id && $fields) {
-                    $this->IblockSetFields($name, $fields);
+                    $return = array_merge($return, $this->IblockSetFields($data['CODE'], $fields));
                 }
             } else {
-                throw new Exception("Can't create {$name} iblock type");
+                throw new Exception("Can't create {$data['CODE']} iblock type");
             }
         } else {
-            throw new Exception("Iblock don't exists");
+            throw new Exception("Iblock {$data['CODE']} doesn't exists");
         }
 
-        return $id;
+        return $return;
     }
 
     /**
@@ -543,14 +518,18 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
      */
     protected function IblockSetFields($code, array $fields)
     {
+        $return = [];
         $id = $this->IblockGetIdByCode($code);
         if ($id) {
             $old_fields = \CIBlock::getFields($id);
             $fields = array_merge($old_fields, $fields);
             \CIBlock::setFields($id, $fields);
+            $return[] = "Set fields for {$code} ibock";
         } else {
             throw new Exception("Can't set fields for {$code} iblock");
         }
+
+        return $return;
     }
 
     /**
@@ -558,28 +537,25 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
      */
     protected function IblockDelete($name)
     {
-        $name = trim($name);
+        $return = [];
         if (empty($name)) {
             throw new Exception('You must set iblock CODE');
         }
-        global $DB;
         $res = \CIBlock::GetList([], [
             'CODE' => $name,
             'CHECK_PERMISSIONS' => 'N',
         ]);
         if ($ob = $res->Fetch()) {
-            $DB->StartTransaction();
-            if (!\CIBlock::Delete($ob['ID'])) {
-                $DB->Rollback();
-                $error = "Can't delete {$name} iblock";
+            if (\CIBlock::Delete($ob['ID'])) {
+                $return[] = "Delete {$name} iblock";
             } else {
-                echo "Delete {$name} iblock";
+                throw new Exception("Can't delete {$name} iblock");
             }
-            $DB->Commit();
-            if (isset($error)) {
-                throw new Exception($error);
-            }
+        } else {
+            throw new Exception("Iblock {$name} doesn't exists");
         }
+
+        return $return;
     }
 
     /**
@@ -593,115 +569,83 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
             'CODE' => $code,
             'CHECK_PERMISSIONS' => 'N',
         ]);
-        if ($ob = $res->Fetch()) {
-            return $ob['ID'];
-        } else {
-            return null;
-        }
+        $ob = $res->Fetch()
+
+        return !empty($ob['ID']) ? $ob['ID'] : null;
     }
 
     /**
      * @param array $data
-     * @param bool  $deleteIfExists
      */
-    protected function IblockTypeCreate(array $data, $deleteIfExists = false)
+    protected function IblockTypeCreate(array $data)
     {
-        global $DB;
-
+        $return = [];
         if (empty(trim($data['ID']))) {
             throw new Exception('You must set iblock type ID');
         }
-        $name = trim($data['ID']);
-
-        $fire = false;
-        $res = \CIBlockType::GetByID($name);
+        $res = \CIBlockType::GetByID($data['ID']);
         if ($ob = $res->Fetch()) {
-            if ($deleteIfExists) {
-                $this->IblockTypeDelete($name);
-                $fire = true;
-            }
+            throw new Exception("Iblock type {$data['ID']} already exists");
+        }
+        $obBlocktype = new \CIBlockType();
+        $res = $obBlocktype->Add(array_merge([
+            'ID' => $data['ID'],
+            'SECTIONS' => 'Y',
+            'IN_RSS' => 'N',
+            'SORT' => 500,
+        ], $data));
+        if ($res) {
+            $return[] = "Add {$data['ID']} iblock type";
         } else {
-            $fire = true;
+            throw new Exception("Can't create {$data['ID']} iblock type");
         }
 
-        if ($fire) {
-            $obBlocktype = new \CIBlockType();
-            $DB->StartTransaction();
-            $res = $obBlocktype->Add(array_merge([
-                'ID' => $name,
-                'SECTIONS' => 'Y',
-                'IN_RSS' => 'N',
-                'SORT' => 500,
-            ], $data));
-            if (!$res) {
-                $DB->Rollback();
-                $error = "Can't create {$name} iblock type";
-            } else {
-                echo "Add {$name} iblock type";
-            }
-            $DB->Commit();
-            if (isset($error)) {
-                throw new Exception($error);
-            }
-        }
-
-        return $name;
+        return $return;
     }
 
     /**
-     * @param string $name
+     * @param array $data
      */
     protected function IblockTypeUpdate($data)
     {
-        global $DB;
-
+        $return = [];
         if (empty(trim($data['ID']))) {
             throw new Exception('You must set iblock type ID');
         }
-        $name = trim($data['ID']);
-
         $res = \CIBlockType::GetList([], [
-            '=ID' => $name,
+            '=ID' => $data['ID'],
         ]);
         if ($ob = $res->Fetch()) {
             $ib = new \CIBlockType();
-            $DB->StartTransaction();
             $id = $ib->Update($ob['ID'], $data);
             if ($id) {
-                $DB->Commit();
-                echo "Update {$name} iblock type";
+                $return[] = "Update {$data['ID']} iblock type";
             } else {
-                $DB->Rollback();
-                throw new Exception("Can't create {$name} iblock type");
+                throw new Exception("Can't create {$data['ID']} iblock type");
             }
         } else {
-            throw new Exception("Iblock type don't exists");
+            throw new Exception("Iblock type {$data['ID']} doesn't exists");
         }
 
-        return $id;
+        return $return;
     }
 
     /**
      * @param string $name
-     * @param bool   $deleteIfExists
      */
     protected function IblockTypeDelete($name)
     {
+        $return = [];
         $name = trim($name);
         if (empty($name)) {
-            throw new Exception('You must set iblock CODE');
+            throw new Exception('You must set iblock type ID');
         }
-        global $DB;
-        $DB->StartTransaction();
-        if (!\CIBlockType::Delete($name)) {
-            $DB->Rollback();
-            $error = "Can't delete {$name} iblock type";
+        if (\CIBlockType::Delete($name)) {
+            $return[] = "Delete {$name} iblock type";
         } else {
-            echo "Delete {$name} iblock type";
+            throw new Exception("Can't delete {$name} iblock type");
         }
-        $DB->Commit();
-        if (isset($error)) {
-            throw new Exception($error);
-        }
+
+        return $return;
     }
 }

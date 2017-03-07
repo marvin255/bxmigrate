@@ -6,12 +6,12 @@ class <?php echo $name; if (!empty($parentClass)) {
 {
     public function up()
     {
-        $this->IblockTypeDelete('<?php echo mb_strtolower($smart_param_1); ?>');
+        return $this->IblockTypeDelete('<?php echo mb_strtolower($smart_param_1); ?>');
     }
 
     public function down()
     {
-        $this->IblockTypeCreate([
+        return $this->IblockTypeCreate([
             'ID' => '<?php echo mb_strtolower($smart_param_1); ?>',
             'SECTIONS' => 'Y',
             'IN_RSS' => 'N',

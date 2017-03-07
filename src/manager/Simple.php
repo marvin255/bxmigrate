@@ -7,11 +7,11 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     /**
      * @var \marvin255\bxmigrate\IMigrateRepo
      */
-    protected $_repo = null;
+    protected $repo = null;
     /**
      * @var \marvin255\bxmigrate\IMigrateRepo
      */
-    protected $_checker = null;
+    protected $checker = null;
 
     /**
      * @param \marvin255\bxmigrate\IMigrateRepo    $repo
@@ -19,56 +19,67 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
      */
     public function __construct(\marvin255\bxmigrate\IMigrateRepo $repo, \marvin255\bxmigrate\IMigrateChecker $checker)
     {
-        $this->setRepo($repo);
-        $this->setChecker($checker);
+        $this->repo = $repo;
+        $this->checker = $checker;
     }
 
     /**
      * @param int $count
      *
-     * @return mixed
+     * @return array
      */
     public function up($count = null)
     {
-        $migrations = $this->getRepo()->getMigrations();
-        $checker = $this->getChecker();
+        $return = [];
+        $migrations = $this->repo->getMigrations();
         $total = count($migrations);
         $upped = 0;
         for ($i = 0; $i < $total; ++$i) {
-            if ($checker->isChecked($migrations[$i]->getName())) {
+            if ($this->checker->isChecked($migrations[$i]->getName())) {
                 continue;
             }
-            $migrations[$i]->up();
-            $checker->check($migrations[$i]->getName());
+            $result = $migrations[$i]->managerUp();
+            $this->checker->check($migrations[$i]->getName());
+            if ($result) {
+                $return = array_merge($return, $result);
+            }
             ++$upped;
             if ($count && $upped === $count) {
                 break;
             }
         }
+
+        return $return;
     }
 
     /**
      * @param int $count
      *
-     * @return mixed
+     * @return array
      */
     public function down($count = null)
     {
-        $migrations = $this->getRepo()->getMigrations();
-        $checker = $this->getChecker();
+        $count = $count === null ? 1 : $count;
+        $return = [];
+        $migrations = $this->repo->getMigrations();
         $total = count($migrations);
         $upped = 0;
         for ($i = $total - 1; $i >= 0; --$i) {
-            if (!$checker->isChecked($migrations[$i]->getName())) {
+            if (!$this->checker->isChecked($migrations[$i]->getName())) {
                 continue;
             }
-            $migrations[$i]->down();
-            $checker->uncheck($migrations[$i]->getName());
+            $result = $migrations[$i]->managerDown();
+            $this->checker->uncheck($migrations[$i]->getName());
+            if ($result) {
+                $return = array_merge($return, $result);
+            }
             ++$upped;
             if ($count && $upped === $count) {
                 break;
             }
         }
+
+        return $return;
     }
 
     /**
@@ -78,42 +89,6 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
      */
     public function create($name)
     {
-        return $this->getRepo()->create($name);
-    }
-
-    /**
-     * @param \marvin255\bxmigrate\IMigrateRepo $item
-     *
-     * @return \marvin255\bxmigrate\IMigrateManager
-     */
-    public function setRepo(\marvin255\bxmigrate\IMigrateRepo $item)
-    {
-        $this->_repo = $item;
-    }
-
-    /**
-     * @return \marvin255\bxmigrate\IMigrateRepo
-     */
-    public function getRepo()
-    {
-        return $this->_repo;
-    }
-
-    /**
-     * @param \marvin255\bxmigrate\IMigrateChecker $item
-     *
-     * @return \marvin255\bxmigrate\IMigrateManager
-     */
-    public function setChecker(\marvin255\bxmigrate\IMigrateChecker $item)
-    {
-        $this->_checker = $item;
-    }
-
-    /**
-     * @return \marvin255\bxmigrate\IMigrateChecker
-     */
-    public function getChecker()
-    {
-        return $this->_checker;
+        return $this->repo->create($name);
     }
 }

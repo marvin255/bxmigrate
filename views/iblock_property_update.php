@@ -6,7 +6,7 @@ class <?php echo $name; if (!empty($parentClass)) {
 {
     public function up()
     {
-        $this->IblockPropertyUpdate(
+        return $this->IblockPropertyUpdate(
             '<?php echo mb_strtolower($smart_param_1); ?>',
             [
                 'CODE' => '<?php echo mb_strtolower($smart_param_2); ?>',
@@ -16,7 +16,7 @@ class <?php echo $name; if (!empty($parentClass)) {
 
     public function down()
     {
-        $this->IblockPropertyUpdate(
+        return $this->IblockPropertyUpdate(
             '<?php echo mb_strtolower($smart_param_1); ?>',
             [
                 'CODE' => '<?php echo mb_strtolower($smart_param_2); ?>',

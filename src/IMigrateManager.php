@@ -13,14 +13,14 @@ interface IMigrateManager
     /**
      * @param int $count
      *
-     * @return mixed
+     * @return array
      */
     public function up($count = null);
 
     /**
      * @param int $count
      *
-     * @return mixed
+     * @return array
      */
     public function down($count = null);
 }

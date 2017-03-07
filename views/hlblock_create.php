@@ -6,7 +6,7 @@ class <?php echo $name; if (!empty($parentClass)) {
 {
     public function up()
     {
-        $this->HLCreate([
+        return $this->HLCreate([
             'NAME' => '<?php echo ucfirst($smart_param_1); ?>',
             'TABLE_NAME' => '', //insert data base table name
         ]);
@@ -14,6 +14,6 @@ class <?php echo $name; if (!empty($parentClass)) {
 
     public function down()
     {
-        $this->HLDelete('<?php echo ucfirst($smart_param_1); ?>');
+        return $this->HLDelete('<?php echo ucfirst($smart_param_1); ?>');
     }
 }

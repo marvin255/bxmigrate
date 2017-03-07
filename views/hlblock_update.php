@@ -6,14 +6,14 @@ class <?php echo $name; if (!empty($parentClass)) {
 {
     public function up()
     {
-        $this->HLUpdate([
+        return $this->HLUpdate([
             'NAME' => '<?php echo ucfirst($smart_param_1); ?>',
         ]);
     }
 
     public function down()
     {
-        $this->HLUpdate([
+        return $this->HLUpdate([
             'NAME' => '<?php echo ucfirst($smart_param_1); ?>',
         ]);
     }

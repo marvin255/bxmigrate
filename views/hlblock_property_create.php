@@ -7,7 +7,7 @@ class <?php echo $name; if (!empty($parentClass)) {
     public function up()
     {
         $id = $this->HLGetIdByCode('<?php echo ucfirst($smart_param_1); ?>');
-        $this->UFCreate([
+        return $this->UFCreate([
             'FIELD_NAME' => 'UF_<?php echo mb_strtoupper($smart_param_2); ?>',
             'ENTITY_ID' => 'HLBLOCK_' . $id,
             'USER_TYPE_ID' => 'string',
@@ -21,6 +21,6 @@ class <?php echo $name; if (!empty($parentClass)) {
     {
         $id = $this->HLGetIdByCode('<?php echo ucfirst($smart_param_1); ?>');
         $entity = 'HLBLOCK_' . $id;
-        $this->UFDelete($entity, 'UF_<?php echo mb_strtoupper($smart_param_2); ?>');
+        return $this->UFDelete($entity, 'UF_<?php echo mb_strtoupper($smart_param_2); ?>');
     }
 }

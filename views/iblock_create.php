@@ -6,7 +6,7 @@ class <?php echo $name; if (!empty($parentClass)) {
 {
     public function up()
     {
-        $this->IblockCreate([
+        return $this->IblockCreate([
             'CODE' => '<?php echo mb_strtolower($smart_param_1); ?>',
             'NAME' => '<?php echo ucfirst($smart_param_1); ?>',
             'SORT' => 500,
@@ -49,6 +49,6 @@ class <?php echo $name; if (!empty($parentClass)) {
 
     public function down()
     {
-        $this->IblockDelete('<?php echo mb_strtolower($smart_param_1); ?>');
+        return $this->IblockDelete('<?php echo mb_strtolower($smart_param_1); ?>');
     }
 }

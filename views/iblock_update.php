@@ -6,14 +6,14 @@ class <?php echo $name; if (!empty($parentClass)) {
 {
     public function up()
     {
-        $this->IblockUpdate([
+        return $this->IblockUpdate([
             'CODE' => '<?php echo mb_strtolower($smart_param_1); ?>',
         ]);
     }
 
     public function down()
     {
-        $this->IblockUpdate([
+        return $this->IblockUpdate([
             'CODE' => '<?php echo mb_strtolower($smart_param_1); ?>',
         ]);
     }

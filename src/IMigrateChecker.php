@@ -15,4 +15,9 @@ interface IMigrateChecker
      * @param string $migration
      */
     public function check($migration);
+
+    /**
+     * @param string $migration
+     */
+    public function uncheck($migration);
 }

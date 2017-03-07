@@ -6,12 +6,12 @@ class <?php echo $name; if (!empty($parentClass)) {
 {
     public function up()
     {
-        $this->HLDelete('<?php echo ucfirst($smart_param_1); ?>');
+        return $this->HLDelete('<?php echo ucfirst($smart_param_1); ?>');
     }
 
     public function down()
     {
-        $this->HLCreate([
+        return $this->HLCreate([
             'NAME' => '<?php echo ucfirst($smart_param_1); ?>',
             'TABLE_NAME' => '', //insert data base table name
         ]);
