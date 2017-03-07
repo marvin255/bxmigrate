@@ -29,13 +29,17 @@ class SymphonyDown extends Command
         if (!defined('CLI_MIGRATIONS_PATH') || empty(CLI_MIGRATIONS_PATH)) {
             $output->writeln('<error>Please set up CLI_MIGRATIONS_PATH constant</error>');
         } else {
-            $repo = new \marvin255\bxmigrate\migrateRepo\Files([
-                'folder' => CLI_MIGRATIONS_PATH,
-            ]);
-            $checker = new \marvin255\bxmigrate\migrateChecker\HighLoadIb();
-            $manager = new \marvin255\bxmigrate\migrateManager\Simple($repo, $checker);
-            $manager->down($count);
-            $output->writeln('<info>Migrations set down</info>');
+            try {
+                $repo = new \marvin255\bxmigrate\migrateRepo\Files(CLI_MIGRATIONS_PATH);
+                $checker = new \marvin255\bxmigrate\migrateChecker\HighLoadIb();
+                $manager = new \marvin255\bxmigrate\migrateManager\Simple($repo, $checker);
+                $messages = $manager->down($count);
+                foreach ($messages as $message) {
+                    $output->writeln('<info>'.$message.'</info>');
+                }
+            } catch (\Exception $e) {
+                $output->writeln('<error>'.$e->getMessage().'</error>');
+            }
         }
     }
 }
