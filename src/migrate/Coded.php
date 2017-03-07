@@ -29,16 +29,15 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     public function managerUp()
     {
         $result = null;
+        BXClearCache(true, '/');
         if (method_exists($this, 'unsafeUp')) {
             $result = $this->unsafeUp();
         } else {
             global $DB;
-            BXClearCache(true, '/');
             $DB->StartTransaction();
             try {
                 $result = $this->up();
                 $DB->Commit();
-                BXClearCache(true, '/');
             } catch (\Exception $e) {
                 $DB->Rollback();
                 throw new Exception($e->getMessage());
@@ -53,16 +52,15 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     public function managerDown()
     {
         $result = null;
+        BXClearCache(true, '/');
         if (method_exists($this, 'unsafeDown')) {
             $result = $this->unsafeDown();
         } else {
             global $DB;
-            BXClearCache(true, '/');
             $DB->StartTransaction();
             try {
                 $result = $this->down();
                 $DB->Commit();
-                BXClearCache(true, '/');
             } catch (\Exception $e) {
                 $DB->Rollback();
                 throw new Exception($e->getMessage());
