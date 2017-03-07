@@ -6,9 +6,24 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use InvalidArgumentException;
 
 class SymphonyDown extends Command
 {
+    /**
+     * @var string
+     */
+    protected $migrationPath = null;
+
+    public function __construct($migrationPath)
+    {
+        if (empty($migrationPath)) {
+            throw new InvalidArgumentException('Migration path can not be empty');
+        }
+        $this->migrationPath = $migrationPath;
+        parent::__construct();
+    }
+
     protected function configure()
     {
         $this
@@ -25,21 +40,16 @@ class SymphonyDown extends Command
     {
         $count = (int) $input->getArgument('count');
         $count = $count ? $count : null;
-
-        if (!defined('CLI_MIGRATIONS_PATH') || empty(CLI_MIGRATIONS_PATH)) {
-            $output->writeln('<error>Please set up CLI_MIGRATIONS_PATH constant</error>');
-        } else {
-            try {
-                $repo = new \marvin255\bxmigrate\migrateRepo\Files(CLI_MIGRATIONS_PATH);
-                $checker = new \marvin255\bxmigrate\migrateChecker\HighLoadIb();
-                $manager = new \marvin255\bxmigrate\migrateManager\Simple($repo, $checker);
-                $messages = $manager->down($count);
-                foreach ($messages as $message) {
-                    $output->writeln('<info>'.$message.'</info>');
-                }
-            } catch (\Exception $e) {
-                $output->writeln('<error>'.$e->getMessage().'</error>');
+        try {
+            $repo = new \marvin255\bxmigrate\migrateRepo\Files($this->migrationPath);
+            $checker = new \marvin255\bxmigrate\migrateChecker\HighLoadIb();
+            $manager = new \marvin255\bxmigrate\migrateManager\Simple($repo, $checker);
+            $messages = $manager->down($count);
+            foreach ($messages as $message) {
+                $output->writeln('<info>'.$message.'</info>');
             }
+        } catch (\Exception $e) {
+            $output->writeln('<error>'.get_class($e).': '.$e->getMessage().'</error>');
         }
     }
 }

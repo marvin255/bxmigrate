@@ -21,6 +21,7 @@ class SymphonyCreate extends Command
             throw new InvalidArgumentException('Migration path can not be empty');
         }
         $this->migrationPath = $migrationPath;
+        parent::__construct();
     }
 
     protected function configure()
@@ -39,13 +40,13 @@ class SymphonyCreate extends Command
     {
         $name = $input->getArgument('name');
         try {
-            $repo = new \marvin255\bxmigrate\migrateRepo\Files($this->migrationPath);
-            $checker = new \marvin255\bxmigrate\migrateChecker\HighLoadIb();
-            $manager = new \marvin255\bxmigrate\migrateManager\Simple($repo, $checker);
+            $repo = new \marvin255\bxmigrate\repo\Files($this->migrationPath);
+            $checker = new \marvin255\bxmigrate\checker\HighLoadIb();
+            $manager = new \marvin255\bxmigrate\manager\Simple($repo, $checker);
             $manager->create($name);
             $output->writeln('<info>Migration created</info>');
         } catch (\Exception $e) {
-            $output->writeln('<error>'.$e->getMessage().'</error>');
+            $output->writeln('<error>'.get_class($e).': '.$e->getMessage().'</error>');
         }
     }
 }

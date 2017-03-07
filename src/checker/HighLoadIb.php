@@ -20,7 +20,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     /**
      * @param string $tableName
      */
-    public function __construct($tableName)
+    public function __construct($tableName = 'bx_db_migrations')
     {
         if (empty($tableName)) {
             throw new Exception('Table name can not be empty');

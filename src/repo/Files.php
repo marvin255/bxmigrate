@@ -35,18 +35,22 @@ class Files implements IMigrateRepo
         $fileNamePrefix = 'migrate'
     ) {
         if (empty($folder) || !is_dir($folder) || !is_writable($folder)) {
-            throw new Exception('Migration folder does not exist');
+            throw new Exception(
+                'Migration folder does not exist: '.(empty($folder) ? 'null' : $folder)
+            );
         } else {
             $this->folder = $folder;
         }
-        $templatesFolder = $templatesFolder ?: __DIR__.'/../views';
+        $templatesFolder = $templatesFolder ? $templatesFolder : __DIR__.'/../../views';
         if (!is_dir($templatesFolder)) {
-            throw new Exception('Migration template folder does not exist');
+            throw new Exception(
+                'Migration template folder does not exist: '.(empty($templatesFolder) ? 'null' : $templatesFolder)
+            );
         } else {
             $this->templatesFolder = $templatesFolder;
         }
         if (empty($parentClass)) {
-            throw new Exception('Migration parent class is emty');
+            throw new Exception('Migration parent class is empty');
         } else {
             $this->parentClass = $parentClass;
         }
