@@ -1,5 +1,8 @@
 <?php echo "<?php\r\n"; ?>
 
+/**
+ * Миграция для удаления типа инфоблока '<?php echo ucfirst($smart_param_1); ?>'.
+ */
 class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
 } echo "\r\n"; ?>

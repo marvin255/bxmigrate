@@ -1,7 +1,7 @@
 <?php echo "<?php\r\n"; ?>
 
 /**
- * Миграция для создания свойства <?php echo mb_strtoupper($smart_param_2); ?> highload инфоблока '<?php echo ucfirst($smart_param_1); ?>'.
+ * Миграция для создания свойства '<?php echo mb_strtoupper($smart_param_2); ?>' highload инфоблока '<?php echo ucfirst($smart_param_1); ?>'.
  */
 class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
