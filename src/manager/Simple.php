@@ -32,14 +32,13 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     {
         $return = [];
         $migrations = $this->repo->getMigrations();
-        $total = count($migrations);
         $upped = 0;
-        for ($i = 0; $i < $total; ++$i) {
-            if ($this->checker->isChecked($migrations[$i]->getName())) {
+        foreach ($migrations as $migration) {
+            if ($this->checker->isChecked($migration->getName())) {
                 continue;
             }
-            $result = $migrations[$i]->managerUp();
-            $this->checker->check($migrations[$i]->getName());
+            $result = $migration->managerUp();
+            $this->checker->check($migration->getName());
             if ($result) {
                 $return = array_merge($return, $result);
             }
@@ -61,15 +60,14 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     {
         $count = $count === null ? 1 : $count;
         $return = [];
-        $migrations = $this->repo->getMigrations();
-        $total = count($migrations);
+        $migrations = array_reverse($this->repo->getMigrations());
         $upped = 0;
-        for ($i = $total - 1; $i >= 0; --$i) {
-            if (!$this->checker->isChecked($migrations[$i]->getName())) {
+        foreach ($migrations as $migration) {
+            if (!$this->checker->isChecked($migration->getName())) {
                 continue;
             }
-            $result = $migrations[$i]->managerDown();
-            $this->checker->uncheck($migrations[$i]->getName());
+            $result = $migration->managerDown();
+            $this->checker->uncheck($migration->getName());
             if ($result) {
                 $return = array_merge($return, $result);
             }

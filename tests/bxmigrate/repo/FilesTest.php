@@ -28,7 +28,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             '\marvin255\bxmigrate\repo\Exception',
-            'Migration parent class is emty'
+            'Migration parent class is empty'
         );
         new Files(sys_get_temp_dir(), sys_get_temp_dir(), null);
     }

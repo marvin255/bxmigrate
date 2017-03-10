@@ -41,9 +41,9 @@ class SymphonyDown extends Command
         $count = (int) $input->getArgument('count');
         $count = $count ? $count : null;
         try {
-            $repo = new \marvin255\bxmigrate\migrateRepo\Files($this->migrationPath);
-            $checker = new \marvin255\bxmigrate\migrateChecker\HighLoadIb();
-            $manager = new \marvin255\bxmigrate\migrateManager\Simple($repo, $checker);
+            $repo = new \marvin255\bxmigrate\repo\Files($this->migrationPath);
+            $checker = new \marvin255\bxmigrate\checker\HighLoadIb();
+            $manager = new \marvin255\bxmigrate\manager\Simple($repo, $checker);
             $messages = $manager->down($count);
             foreach ($messages as $message) {
                 $output->writeln('<info>'.$message.'</info>');

@@ -128,7 +128,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
                 throw new Exception("Can't update {$data['NAME']} highload block: ".implode(', ', $result->getErrorMessages()));
             }
         } else {
-            throw new Exception("Hl entity with name '.$data['NAME'].' does not exist");
+            throw new Exception("Hl entity with name {$data['NAME']} does not exist");
         }
         return $return;
     }
@@ -569,7 +569,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
             'CODE' => $code,
             'CHECK_PERMISSIONS' => 'N',
         ]);
-        $ob = $res->Fetch()
+        $ob = $res->Fetch();
 
         return !empty($ob['ID']) ? $ob['ID'] : null;
     }

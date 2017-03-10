@@ -103,7 +103,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
             $entity = HighloadBlockTable::compileEntity($hlblock);
             $this->compiledEntity = $entity->getDataClass();
         }
-        return $this->_compiledEntity;
+        return $this->compiledEntity;
     }
 
     /**
@@ -175,6 +175,6 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
      */
     protected function getModelName()
     {
-        return ucfirst(str_replace(['_'], '', $this->getTableName()));
+        return ucfirst(str_replace(['_'], '', $this->tableName));
     }
 }
