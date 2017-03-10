@@ -524,7 +524,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
             $old_fields = \CIBlock::getFields($id);
             $fields = array_merge($old_fields, $fields);
             \CIBlock::setFields($id, $fields);
-            $return[] = "Set fields for {$code} ibock";
+            $return[] = "Set fields for {$code} iblock";
         } else {
             throw new Exception("Can't set fields for {$code} iblock");
         }
