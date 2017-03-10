@@ -9,15 +9,11 @@ class <?php echo $name; if (!empty($parentClass)) {
 {
     public function up()
     {
-        if (($module = \CModule::CreateModuleObject('<?php echo $smart_param_1; ?>')) && $module->IsInstalled()) {
-            $module->DoUninstall();
-        }
+        return $this->uninstallModule('<?php echo $smart_param_1; ?>');
     }
 
     public function down()
     {
-        if (($module = \CModule::CreateModuleObject('<?php echo $smart_param_1; ?>')) && !$module->IsInstalled()) {
-            $module->DoInstall();
-        }
+        return $this->installModule('<?php echo $smart_param_1; ?>');
     }
 }
