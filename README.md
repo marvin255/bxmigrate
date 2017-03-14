@@ -135,4 +135,4 @@ class migrate_{TIMESTAMP СОЗДАНИЯ МИГРАЦИИ}_new_migration extend
 
 4. Применить миграцию в базе данных с помощью команды `php cli.php bxmigrate:up`,
 
-5. В случае необходимости отменить последню миграцию можно с помощью команды ``php cli.php bxmigrate:down`.
+5. В случае необходимости отменить последню миграцию можно с помощью команды `php cli.php bxmigrate:down`.
