@@ -2,7 +2,7 @@
 
 namespace marvin255\bxmigrate\tests\bxmigrate\repo;
 
-use \marvin255\bxmigrate\repo\Files;
+use marvin255\bxmigrate\repo\Files;
 
 class FilesTest extends \PHPUnit_Framework_TestCase
 {
@@ -61,7 +61,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
     public function testGetMigartionsWrongInterfaceException()
     {
         $folder = $this->getTestFolder();
-        file_put_contents($folder.'/prefix_123_test.php', "<?php class prefix_123_test {}");
+        file_put_contents($folder.'/prefix_123_test.php', '<?php class prefix_123_test {}');
         $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
             ->getMock();
         $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
@@ -130,7 +130,9 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         if (is_dir($folder)) {
             $files = scandir($folder);
             foreach ($files as $file) {
-                if ($file === '.' || $file === '..') continue;
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
                 unlink("{$folder}/{$file}");
             }
             rmdir($folder);

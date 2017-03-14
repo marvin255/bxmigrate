@@ -2,8 +2,6 @@
 
 namespace marvin255\bxmigrate\tests\bxmigrate\manager;
 
-use \marvin255\bxmigrate\repo\Files;
-
 class SimpleTest extends \PHPUnit_Framework_TestCase
 {
     public function testUp()

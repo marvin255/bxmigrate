@@ -67,8 +67,10 @@ class Files implements IMigrateRepo
         $return = [];
         $regexp = $this->fileNamePrefix ? '/^('.$this->fileNamePrefix.'\S+)\.php$/' : '/^(\S+)\.php$/';
         foreach (scandir($this->folder) as $file) {
-            if (!preg_match($regexp, $file, $matches)) continue;
-            require_once($this->folder.'/'.$file);
+            if (!preg_match($regexp, $file, $matches)) {
+                continue;
+            }
+            require_once $this->folder.'/'.$file;
             $class = $matches[1];
             if (!is_subclass_of($class, '\marvin255\bxmigrate\IMigrate')) {
                 throw new Exception('File '.$file.' has no migration class');
@@ -121,7 +123,7 @@ class Files implements IMigrateRepo
         if ($___data___) {
             extract($___data___);
         }
-        include($___view___);
+        include $___view___;
 
         return ob_get_clean();
     }
@@ -160,10 +162,14 @@ class Files implements IMigrateRepo
         $view = null;
         $params = [];
         foreach ($smartViews as $file => $regular) {
-            if (!preg_match($regular, $name, $matches)) continue;
+            if (!preg_match($regular, $name, $matches)) {
+                continue;
+            }
             $view = "{$file}.php";
             foreach ($matches as $key => $val) {
-                if ($key === 0) continue;
+                if ($key === 0) {
+                    continue;
+                }
                 $params["smart_param_{$key}"] = $val;
             }
             break;

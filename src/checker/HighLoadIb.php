@@ -31,11 +31,13 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
 
     /**
      * @param string $migration
+     *
      * @return bool
      */
     public function isChecked($migration)
     {
         $checked = $this->getChecked();
+
         return isset($checked[$migration]);
     }
 
@@ -88,11 +90,13 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
         foreach ($res as $key => $value) {
             $return[$value['UF_MIGRATION_NAME']] = $value;
         }
+
         return $return;
     }
 
     /**
      * @param array $hlblock
+     *
      * @return string
      */
     protected function compileEntity(array $hlblock)
@@ -103,6 +107,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
             $entity = HighloadBlockTable::compileEntity($hlblock);
             $this->compiledEntity = $entity->getDataClass();
         }
+
         return $this->compiledEntity;
     }
 
@@ -125,7 +130,9 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
                 'TABLE_NAME' => $this->tableName,
             ]);
             $id = $result->getId();
-            if (!$id) Exception('Can\'t create HL table '.implode(', ', $result->getErrorMessages()));
+            if (!$id) {
+                Exception('Can\'t create HL table '.implode(', ', $result->getErrorMessages()));
+            }
         } else {
             $id = $hlblock['ID'];
         }
@@ -139,30 +146,35 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
         }
         //название миграции
         if (empty($fields['UF_MIGRATION_NAME'])) {
-            $obUserField = new CUserTypeEntity;
+            $obUserField = new CUserTypeEntity();
             $idRes = $obUserField->Add([
                 'USER_TYPE_ID' => 'string',
                 'ENTITY_ID' => "HLBLOCK_{$id}",
                 'FIELD_NAME' => 'UF_MIGRATION_NAME',
                 'EDIT_FORM_LABEL' => [
                     'ru' => 'Название миграции',
-                ]
+                ],
             ]);
-            if (!$idRes) throw new Exception('Can\'t create UF_MIGRATION_NAME property');
+            if (!$idRes) {
+                throw new Exception('Can\'t create UF_MIGRATION_NAME property');
+            }
         }
         //дата миграции
         if (empty($fields['UF_MIGRATION_DATE'])) {
-            $obUserField = new CUserTypeEntity;
+            $obUserField = new CUserTypeEntity();
             $idRes = $obUserField->Add([
                 'USER_TYPE_ID' => 'string',
                 'ENTITY_ID' => "HLBLOCK_{$id}",
                 'FIELD_NAME' => 'UF_MIGRATION_DATE',
                 'EDIT_FORM_LABEL' => [
                     'ru' => 'Дата миграции',
-                ]
+                ],
             ]);
-            if (!$idRes) throw new Exception('Can\'t create UF_MIGRATION_DATE property');
+            if (!$idRes) {
+                throw new Exception('Can\'t create UF_MIGRATION_DATE property');
+            }
         }
+
         return [
             'ID' => $id,
             'NAME' => $modelName,
