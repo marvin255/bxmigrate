@@ -6,6 +6,12 @@ use Bitrix\Main\Loader;
 use Bitrix\Highloadblock\HighloadBlockTable;
 use CUserTypeEntity;
 
+/**
+ * Объект, который проверяет статус миграции для данной базы данных.
+ * Создает высоконагруженный инфоблок, в который записывает название миграции и дату применения миграции.
+ * При отмене миграции - удаляет запись о миграции из списка.
+ * Инфоблок создается автоматичекси, при применении каждой новой миграции проверяется его существование.
+ */
 class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
 {
     /**
@@ -18,7 +24,11 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     protected $compiledEntity = null;
 
     /**
+     * В конструкторе задем название таблицы базы данных, в которой будут сохранены записи о миграциях.
+     *
      * @param string $tableName
+     *
+     * @throws \marvin255\bxmigrate\checker\Exception
      */
     public function __construct($tableName = 'bx_db_migrations')
     {
@@ -30,9 +40,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     }
 
     /**
-     * @param string $migration
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function isChecked($migration)
     {
@@ -42,7 +50,9 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     }
 
     /**
-     * @param string $migration
+     * {@inheritdoc}
+     *
+     * @throws \marvin255\bxmigrate\checker\Exception
      */
     public function check($migration)
     {
@@ -61,7 +71,9 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     }
 
     /**
-     * @param string $migration
+     * {@inheritdoc}
+     *
+     * @throws \marvin255\bxmigrate\checker\Exception
      */
     public function uncheck($migration)
     {
@@ -77,6 +89,8 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     }
 
     /**
+     * Возвращает список всех примененных миграций.
+     *
      * @return array
      */
     protected function getChecked()
@@ -95,6 +109,8 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     }
 
     /**
+     * Битриксовая магия. Прежде, чем использовать модель hl инфоблока, ее нужно собрать.
+     *
      * @param array $hlblock
      *
      * @return string
@@ -112,7 +128,13 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     }
 
     /**
+     * Проверяет существовани таблицы в базе данных и соответствующей ей сущности hl инфоблока.
+     * Если что-либо не найдено, то создает.
+     * Возвращает массив с описанием сущности hl инфоблока, которая используется для обработки миграций.
+     *
      * @return array
+     *
+     * @throws \marvin255\bxmigrate\checker\Exception
      */
     protected function infrastructureCheck()
     {
@@ -183,6 +205,8 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     }
 
     /**
+     * Преобразовывает имя таблицы в базе данных в имя сущности hl инфоблока.
+     *
      * @return string
      */
     protected function getModelName()

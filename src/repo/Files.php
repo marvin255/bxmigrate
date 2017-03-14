@@ -4,6 +4,9 @@ namespace marvin255\bxmigrate\repo;
 
 use marvin255\bxmigrate\IMigrateRepo;
 
+/**
+ * Хранилище миграций, которое использует файлы php и классы с соответствующими именами для получения миграций.
+ */
 class Files implements IMigrateRepo
 {
     /**
@@ -24,7 +27,12 @@ class Files implements IMigrateRepo
     protected $parentClass = null;
 
     /**
-     * @param array $config
+     * Задаем в конструкторе настройки хранилища.
+     *
+     * @param string $folder          Путь до папки, в которой хранятся миграции
+     * @param string $templatesFolder Путь до папки, в которой хранятся шаблоны для создания миграций
+     * @param string $parentClass     Класс, от которого будут унаследованы создаваемые миграции
+     * @param string $fileNamePrefix  Префикс, который будет использован в имени файла миграции
      *
      * @throws \marvin255\bxmigrate\repo\Exception
      */
@@ -58,7 +66,7 @@ class Files implements IMigrateRepo
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      *
      * @throws \marvin255\bxmigrate\repo\Exception
      */
@@ -83,9 +91,7 @@ class Files implements IMigrateRepo
     }
 
     /**
-     * @param string $name
-     *
-     * @return string
+     * {@inheritdoc}
      *
      * @throws \marvin255\bxmigrate\repo\Exception
      */
@@ -113,8 +119,12 @@ class Files implements IMigrateRepo
     }
 
     /**
+     * Рендерит файл миграции на основании указанного шаблона миграции и данных, которые были получены от пользователя.
+     *
      * @param string $___view___
      * @param array  $___data___
+     *
+     * @return string
      */
     protected function renderMigration($___view___, array $___data___ = null)
     {
@@ -129,6 +139,10 @@ class Files implements IMigrateRepo
     }
 
     /**
+     * Пробует распарсить имя миграции, чтобы на его основании подобрать правильный шаблон миграции.
+     * Если найден шаблон по регулрному выражению, то возвращает путь к данному шаблону и те параметры,
+     * что удалось извлечь регулярному выражению. В противном случае возвращает путь до шаблона default.
+     *
      * @param string $name
      *
      * @return array
@@ -182,6 +196,8 @@ class Files implements IMigrateRepo
     }
 
     /**
+     * Очищает название миграции от невалидных символов, для использования его в качестве имени файла и класса.
+     *
      * @param string
      *
      * @return string

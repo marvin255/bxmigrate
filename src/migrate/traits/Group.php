@@ -5,6 +5,9 @@ namespace marvin255\bxmigrate\migrate\traits;
 use marvin255\bxmigrate\migrate\Exception;
 use CGroup;
 
+/**
+ * Трэйт с функциями для групп пользователей.
+ */
 trait Group
 {
     /**

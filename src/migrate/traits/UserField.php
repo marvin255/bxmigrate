@@ -6,6 +6,9 @@ use marvin255\bxmigrate\migrate\Exception;
 use CUserTypeEntity;
 use CUserFieldEnum;
 
+/**
+ * Трэйт с функциями для пользовательских полей (UF).
+ */
 trait UserField
 {
     /**

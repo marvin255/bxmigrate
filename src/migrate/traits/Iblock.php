@@ -6,6 +6,9 @@ use marvin255\bxmigrate\migrate\Exception;
 use CIBlock;
 use CSite;
 
+/**
+ * Трэйт с функциями для инфоблоков.
+ */
 trait Iblock
 {
     /**

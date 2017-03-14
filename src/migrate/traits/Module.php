@@ -5,6 +5,9 @@ namespace marvin255\bxmigrate\migrate\traits;
 use marvin255\bxmigrate\migrate\Exception;
 use CModule;
 
+/**
+ * Трэйт с функциями для установки/удаления модулей битрикса.
+ */
 trait Module
 {
     /**

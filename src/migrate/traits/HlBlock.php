@@ -5,6 +5,9 @@ namespace marvin255\bxmigrate\migrate\traits;
 use marvin255\bxmigrate\migrate\Exception;
 use Bitrix\Highloadblock\HighloadBlockTable;
 
+/**
+ * Трэйт с функциями для высоконагруженных инфоблоков.
+ */
 trait HlBlock
 {
     /**

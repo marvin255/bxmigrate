@@ -4,6 +4,9 @@ namespace marvin255\bxmigrate\migrate;
 
 use Bitrix\Main\Loader;
 
+/**
+ * Базовая миграция для битрикса. Изменения задаются через использование функций стандартного API битрикса.
+ */
 abstract class Coded implements \marvin255\bxmigrate\IMigrate
 {
     use Module;
@@ -14,6 +17,9 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     use IblockProperty;
     use IblockType;
 
+    /**
+     * В конструкторе подключаем все модули битрикса, которые будем использовать в миграции.
+     */
     public function __construct()
     {
         Loader::includeModule('iblock');
@@ -21,7 +27,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     }
 
     /**
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -29,7 +35,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     }
 
     /**
-     * @return mixed
+     * {@inheritdoc}
      */
     public function managerUp()
     {
@@ -54,7 +60,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     }
 
     /**
-     * @return mixed
+     * {@inheritdoc}
      */
     public function managerDown()
     {

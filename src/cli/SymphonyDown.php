@@ -6,8 +6,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use marvin255\bxmigrate\Exception;
 use InvalidArgumentException;
 
+/**
+ * Консольная команда для Symfony console, которая откатывает миграции.
+ */
 class SymphonyDown extends Command
 {
     /**
@@ -48,7 +52,7 @@ class SymphonyDown extends Command
             foreach ($messages as $message) {
                 $output->writeln('<info>'.$message.'</info>');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $output->writeln('<error>'.get_class($e).': '.$e->getMessage().'</error>');
         }
     }

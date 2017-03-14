@@ -5,6 +5,9 @@ namespace marvin255\bxmigrate\migrate\traits;
 use marvin255\bxmigrate\migrate\Exception;
 use CIBlockProperty;
 
+/**
+ * Трэйт с функциями для свойств инфоблоков.
+ */
 trait IblockProperty
 {
     /**

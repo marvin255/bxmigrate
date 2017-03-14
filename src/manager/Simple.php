@@ -2,6 +2,11 @@
 
 namespace marvin255\bxmigrate\manager;
 
+/**
+ * Простой менеджер миграций. Получает классы миграций из хранилища, переданного в конструкторе.
+ * Проверяет применена ли миграция с помощью объекта для проверки миграций.
+ * В зависимости от метода, создает, накатывает или отменяет миграции.
+ */
 class Simple implements \marvin255\bxmigrate\IMigrateManager
 {
     /**
@@ -14,8 +19,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     protected $checker = null;
 
     /**
-     * @param \marvin255\bxmigrate\IMigrateRepo    $repo
-     * @param \marvin255\bxmigrate\IMigrateChecker $checker
+     * {@inheritdoc}
      */
     public function __construct(\marvin255\bxmigrate\IMigrateRepo $repo, \marvin255\bxmigrate\IMigrateChecker $checker)
     {
@@ -24,9 +28,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     }
 
     /**
-     * @param int $count
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function up($count = null)
     {
@@ -52,9 +54,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     }
 
     /**
-     * @param int $count
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function down($count = null)
     {
@@ -81,9 +81,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     }
 
     /**
-     * @param string $name
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function create($name)
     {

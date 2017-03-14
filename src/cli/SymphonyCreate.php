@@ -6,8 +6,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use marvin255\bxmigrate\Exception;
 use InvalidArgumentException;
 
+/**
+ * Консольная команда для Symfony console, которая создает новую миграцию.
+ */
 class SymphonyCreate extends Command
 {
     /**
@@ -45,7 +49,7 @@ class SymphonyCreate extends Command
             $manager = new \marvin255\bxmigrate\manager\Simple($repo, $checker);
             $manager->create($name);
             $output->writeln('<info>Migration created</info>');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $output->writeln('<error>'.get_class($e).': '.$e->getMessage().'</error>');
         }
     }
