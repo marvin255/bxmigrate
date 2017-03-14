@@ -73,7 +73,7 @@ define('CHK_EVENT', true);
 require_once(__DIR__.'/vendor/marvin255/bxmigrate/src/Autoloader.php');
 require $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php';
 
-//подключаем Symfony console
+//Подключаем Symfony console
 use Symfony\Component\Console\Application;
 $application = new Application();
 
