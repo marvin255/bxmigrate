@@ -90,48 +90,48 @@ $application->run();
 
 1. создать миграцию с помощью команды `php cli.php bxmigrate:create new_migration`,
 
-2. в каталоге `migrations` найти миграцию с именем `migrate_{TIMESTAMP СОЗДАНИЯ МИГРАЦИИ}_new_migration.php`,
+2. в каталоге `migrations` найти миграцию с именем `migrate_{TIMESTAMP_СОЗДАНИЯ_МИГРАЦИИ}_new_migration.php`,
 
 3. реализовать методы up и down для данной миграции, например:
 
-```php
-<?php
+    ```php
+    <?php
 
-/**
- * Миграция для создания типа инфоблока 'Structure'.
- */
-class migrate_{TIMESTAMP СОЗДАНИЯ МИГРАЦИИ}_new_migration extends \marvin255\bxmigrate\migrate\Coded
-{
-    public function up()
+    /**
+     * Миграция для создания типа инфоблока 'Structure'.
+     */
+    class migrate_{TIMESTAMP_СОЗДАНИЯ_МИГРАЦИИ}_new_migration extends \marvin255\bxmigrate\migrate\Coded
     {
-        return $this->IblockTypeCreate([
-            'ID' => 'structure',
-            'SECTIONS' => 'Y',
-            'IN_RSS' => 'N',
-            'SORT' => 500,
-            'EDIT_FILE_BEFORE' => '',
-            'EDIT_FILE_AFTER' => '',
-            'LANG' => [
-                'en' => [
-                    'NAME' => 'Structure',
-                    'SECTION_NAME' => '',
-                    'ELEMENT_NAME' => '',
+        public function up()
+        {
+            return $this->IblockTypeCreate([
+                'ID' => 'structure',
+                'SECTIONS' => 'Y',
+                'IN_RSS' => 'N',
+                'SORT' => 500,
+                'EDIT_FILE_BEFORE' => '',
+                'EDIT_FILE_AFTER' => '',
+                'LANG' => [
+                    'en' => [
+                        'NAME' => 'Structure',
+                        'SECTION_NAME' => '',
+                        'ELEMENT_NAME' => '',
+                    ],
+                    'ru' => [
+                        'NAME' => 'Структура сайта',
+                        'SECTION_NAME' => '',
+                        'ELEMENT_NAME' => '',
+                    ],
                 ],
-                'ru' => [
-                    'NAME' => 'Структура сайта',
-                    'SECTION_NAME' => '',
-                    'ELEMENT_NAME' => '',
-                ],
-            ],
-        ]);
-    }
+            ]);
+        }
 
-    public function down()
-    {
-        return $this->IblockTypeDelete('structure');
+        public function down()
+        {
+            return $this->IblockTypeDelete('structure');
+        }
     }
-}
-```
+    ```
 
 4. Применить миграцию в базе данных с помощью команды `php cli.php bxmigrate:up`,
 
