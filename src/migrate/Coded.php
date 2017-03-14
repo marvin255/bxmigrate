@@ -3,6 +3,13 @@
 namespace marvin255\bxmigrate\migrate;
 
 use Bitrix\Main\Loader;
+use marvin255\bxmigrate\migrate\traits\Module;
+use marvin255\bxmigrate\migrate\traits\HlBlock;
+use marvin255\bxmigrate\migrate\traits\UserField;
+use marvin255\bxmigrate\migrate\traits\Group;
+use marvin255\bxmigrate\migrate\traits\Iblock;
+use marvin255\bxmigrate\migrate\traits\IblockProperty;
+use marvin255\bxmigrate\migrate\traits\IblockType;
 
 /**
  * Базовая миграция для битрикса. Изменения задаются через использование функций стандартного API битрикса.
