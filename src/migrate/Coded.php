@@ -61,7 +61,6 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
                 throw new Exception($e->getMessage());
             }
         }
-        BXClearCache(true, '/');
 
         return $result;
     }
@@ -86,7 +85,6 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
                 throw new Exception($e->getMessage());
             }
         }
-        BXClearCache(true, '/');
 
         return $result;
     }
