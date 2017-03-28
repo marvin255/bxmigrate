@@ -160,7 +160,7 @@ class Files implements IMigrateRepo
             'iblock_type_delete' => '/^delete_iblock_type_(.+)$/i',
             'iblock_create' => '/^create_iblock_(.+)$/i',
             'iblock_update' => '/^update_iblock_(.+)$/i',
-            'iblock_delete' => '/^create_iblock_(.+)$/i',
+            'iblock_delete' => '/^delete_iblock_(.+)$/i',
 
             'hlblock_property_create' => '/^create_hlblock_(.+)_property_(.+)$/i',
             'hlblock_property_update' => '/^update_hlblock_(.+)_property_(.+)$/i',
