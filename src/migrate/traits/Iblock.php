@@ -25,21 +25,28 @@ trait Iblock
         if (empty(trim($data['CODE']))) {
             throw new Exception('You must set iblock CODE');
         }
-        $res = CIBlock::GetList([], ['CODE' => $data['CODE'], 'CHECK_PERMISSIONS' => 'N']);
-        if ($ob = $res->Fetch()) {
-            throw new Exception('Iblock '.$data['CODE'].' already exists');
+
+        $sites = !empty($data['LID']) ? $data['LID'] : null;
+        if ($sites === null) {
+            $rsSite = CSite::GetList($by = 'sort', $order = 'desc', ['DEFAULT' => 'Y']);
+            while ($obSite = $rsSite->Fetch()) {
+                $sites[] = $obSite['LID'];
+            } else {
+                throw new Exception('Can not find default site to create iblock');
+            }
         }
-        $rsSite = CSite::GetList($by = 'sort', $order = 'desc', ['DEFAULT' => 'Y']);
-        $sites = [];
-        while ($obSite = $rsSite->Fetch()) {
-            $sites[] = $obSite['LID'];
+
+        $iblockId = $this->IblockGetIdByCode($data['CODE'], $sites);
+        if ($iblockId) {
+            throw new Exception('Iblock ' . $data['CODE'] . ' already exists');
         }
+
         $ib = new CIBlock();
         $id = $ib->Add(array_merge([
             'ACTIVE' => 'Y',
             'CODE' => $data['CODE'],
             'XML_ID' => $data['CODE'],
-            'LID' => $sites[0],
+            'SITE_ID' => $sites,
             'LIST_PAGE_URL' => '',
             'DETAIL_PAGE_URL' => '',
             'SECTION_PAGE_URL' => '',
@@ -149,16 +156,26 @@ trait Iblock
 
     /**
      * @var string $code
+     * @var array  $siteId
      *
      * @return int|string
      *
      * @throws \marvin255\bxmigrate\migrate\Exception
      */
-    protected function IblockGetIdByCode($code)
+    protected function IblockGetIdByCode($code, array $siteId = null)
     {
+        if ($siteId === null) {
+            $rsSite = CSite::GetList($by = 'sort', $order = 'desc', ['DEFAULT' => 'Y']);
+            if ($ob = $rsSite->fetch()) {
+                $siteId[] = $ob['LID'];
+            } else {
+                throw new Exception('Can not find default site to search iblock');
+            }
+        }
         $res = CIBlock::GetList([], [
             'CODE' => $code,
             'CHECK_PERMISSIONS' => 'N',
+            'SITE_ID' => $siteId,
         ]);
         $ob = $res->Fetch();
 
