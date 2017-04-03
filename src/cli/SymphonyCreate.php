@@ -50,7 +50,9 @@ class SymphonyCreate extends Command
             $manager->create($name);
             $output->writeln('<info>Migration created</info>');
         } catch (Exception $e) {
-            $output->writeln('<error>'.get_class($e).': '.$e->getMessage().'</error>');
+            $output->writeln('<error>' . $e->getMessage() . '</error>');
+            $showException = $e->getPrevious() ?: $e;
+            $output->writeln('<error>In ' . $showException->getFile() . ' on line ' . $showException->getLine() . '</error>');
         }
     }
 }

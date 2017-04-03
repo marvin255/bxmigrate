@@ -50,10 +50,12 @@ class SymphonyUp extends Command
             $manager = new \marvin255\bxmigrate\manager\Simple($repo, $checker);
             $messages = $manager->up($count);
             foreach ($messages as $message) {
-                $output->writeln('<info>'.$message.'</info>');
+                $output->writeln('<info>' . $message . '</info>');
             }
         } catch (Exception $e) {
-            $output->writeln('<error>'.get_class($e).': '.$e->getMessage().'</error>');
+            $output->writeln('<error>' . $e->getMessage() . '</error>');
+            $showException = $e->getPrevious() ?: $e;
+            $output->writeln('<error>In ' . $showException->getFile() . ' on line ' . $showException->getLine() . '</error>');
         }
     }
 }

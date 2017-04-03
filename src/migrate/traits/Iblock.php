@@ -12,8 +12,8 @@ use CSite;
 trait Iblock
 {
     /**
-     * @var array $data
-     * @var array $fields
+     * @param array $data
+     * @param array $fields
      *
      * @return array
      *
@@ -29,7 +29,7 @@ trait Iblock
         $sites = !empty($data['LID']) ? $data['LID'] : null;
         if ($sites === null) {
             $rsSite = CSite::GetList($by = 'sort', $order = 'desc', ['DEFAULT' => 'Y']);
-            while ($obSite = $rsSite->Fetch()) {
+            if ($obSite = $rsSite->Fetch()) {
                 $sites[] = $obSite['LID'];
             } else {
                 throw new Exception('Can not find default site to create iblock');
@@ -38,7 +38,7 @@ trait Iblock
 
         $iblockId = $this->IblockGetIdByCode($data['CODE'], $sites);
         if ($iblockId) {
-            throw new Exception('Iblock ' . $data['CODE'] . ' already exists');
+            throw new Exception("Iblock {$data['CODE']} ($iblockId) already exists");
         }
 
         $ib = new CIBlock();
@@ -56,20 +56,20 @@ trait Iblock
             'INDEX_SECTION' => 'N',
         ], $data));
         if ($id) {
-            $return[] = "Add {$data['CODE']} iblock";
+            $return[] = "Add {$data['CODE']} ({$id}) iblock";
             if ($id && $fields) {
-                $return = array_merge($return, $this->IblockSetFields($data['CODE'], $fields));
+                $return = array_merge($return, $this->IblockSetFields($id, $fields));
             }
         } else {
-            throw new Exception("Can't create {$data['CODE']} iblock type");
+            throw new Exception("Can't create {$data['CODE']} iblock: {$ib->LAST_ERROR}");
         }
 
         return $return;
     }
 
     /**
-     * @var array $data
-     * @var array $fields
+     * @param array $data
+     * @param array $fields
      *
      * @return array
      *
@@ -81,17 +81,20 @@ trait Iblock
         if (empty(trim($data['CODE']))) {
             throw new Exception('You must set iblock CODE');
         }
-        $res = CIBlock::GetList([], ['CODE' => $data['CODE'], 'CHECK_PERMISSIONS' => 'N']);
-        if ($ob = $res->Fetch()) {
+        $iblock = $this->IblockGetIdByCode(
+            $name,
+            !empty($fields['SITE_ID']) ? $fields['SITE_ID'] : []
+        );
+        if ($iblock) {
             $ib = new CIBlock();
-            $id = $ib->Update($ob['ID'], $data);
-            if ($id) {
-                $return[] = "Update {$data['CODE']} iblock";
-                if ($id && $fields) {
-                    $return = array_merge($return, $this->IblockSetFields($data['CODE'], $fields));
+            $res = $ib->Update($iblock, $data);
+            if ($res) {
+                $return[] = "Update {$data['CODE']} ({$iblock}) iblock";
+                if ($fields) {
+                    $return = array_merge($return, $this->IblockSetFields($iblock, $fields));
                 }
             } else {
-                throw new Exception("Can't create {$data['CODE']} iblock type");
+                throw new Exception("Can't update {$data['CODE']} ({$iblock}) iblock: {$ib->LAST_ERROR}");
             }
         } else {
             throw new Exception("Iblock {$data['CODE']} doesn't exists");
@@ -101,51 +104,40 @@ trait Iblock
     }
 
     /**
-     * @param string $code
+     * @param string $id
      * @param array  $fields
      *
      * @return array
-     *
-     * @throws \marvin255\bxmigrate\migrate\Exception
      */
-    protected function IblockSetFields($code, array $fields)
+    protected function IblockSetFields($id, array $fields)
     {
-        $return = [];
-        $id = $this->IblockGetIdByCode($code);
-        if ($id) {
-            $old_fields = CIBlock::getFields($id);
-            $fields = array_merge($old_fields, $fields);
-            CIBlock::setFields($id, $fields);
-            $return[] = "Set fields for {$code} iblock";
-        } else {
-            throw new Exception("Can't set fields for {$code} iblock");
-        }
-
-        return $return;
+        $old_fields = CIBlock::getFields($id);
+        $fields = array_merge($old_fields, $fields);
+        CIBlock::setFields($id, $fields);
+        
+        return ['Set fields for iblock with id = ' . $id];
     }
 
     /**
-     * @var string $code
+     * @param string $code
+     * @param array  $sites
      *
      * @return array
      *
      * @throws \marvin255\bxmigrate\migrate\Exception
      */
-    protected function IblockDelete($name)
+    protected function IblockDelete($name, array $sites = array())
     {
         $return = [];
         if (empty($name)) {
             throw new Exception('You must set iblock CODE');
         }
-        $res = CIBlock::GetList([], [
-            'CODE' => $name,
-            'CHECK_PERMISSIONS' => 'N',
-        ]);
-        if ($ob = $res->Fetch()) {
-            if (CIBlock::Delete($ob['ID'])) {
-                $return[] = "Delete {$name} iblock";
+        $iblock = $this->IblockGetIdByCode($name, $sites);
+        if ($iblock) {
+            if (CIBlock::Delete($iblock)) {
+                $return[] = "Delete {$name} ({$iblock}) iblock";
             } else {
-                throw new Exception("Can't delete {$name} iblock");
+                throw new Exception("Can't delete {$name} ({$iblock}) iblock");
             }
         } else {
             throw new Exception("Iblock {$name} doesn't exists");
@@ -155,16 +147,16 @@ trait Iblock
     }
 
     /**
-     * @var string $code
-     * @var array  $siteId
+     * @param string $code
+     * @param array  $siteId
      *
      * @return int|string
      *
      * @throws \marvin255\bxmigrate\migrate\Exception
      */
-    protected function IblockGetIdByCode($code, array $siteId = null)
+    protected function IblockGetIdByCode($code, array $siteId = array())
     {
-        if ($siteId === null) {
+        if (empty($siteId)) {
             $rsSite = CSite::GetList($by = 'sort', $order = 'desc', ['DEFAULT' => 'Y']);
             if ($ob = $rsSite->fetch()) {
                 $siteId[] = $ob['LID'];
