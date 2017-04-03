@@ -26,14 +26,14 @@ trait HlBlock
         if (empty($data['TABLE_NAME'])) {
             throw new Exception('You must set hl TABLE_NAME');
         }
-        if ($this->HLGetIdByCode($data['NAME'])) {
-            throw new Exception('Hl entity with name '.$data['NAME'].' already exists');
+        if ($id = $this->HLGetIdByCode($data['NAME'])) {
+            throw new Exception("Hl entity with name {$data['NAME']} ({$id}) already exists");
         }
         $result = HighloadBlockTable::add($data);
         if ($result->isSuccess()) {
-            $return[] = "Add {$data['NAME']} highload block";
+            $return[] = "Add {$data['NAME']} (" . $result->getId() . ") highload block";
         } else {
-            throw new Exception("Can't create {$data['NAME']} highload block: ".implode(', ', $result->getErrorMessages()));
+            throw new Exception("Can't create {$data['NAME']} highload block: " . implode(', ', $result->getErrorMessages()));
         }
 
         return $return;
@@ -56,9 +56,9 @@ trait HlBlock
             unset($data['NAME']);
             $result = HighloadBlockTable::update($id, $data);
             if ($res->isSuccess()) {
-                $return[] = "Update {$data['NAME']} highload block";
+                $return[] = "Update {$data['NAME']} ({$id}) highload block";
             } else {
-                throw new Exception("Can't update {$data['NAME']} highload block: ".implode(', ', $result->getErrorMessages()));
+                throw new Exception("Can't update {$data['NAME']} ({$id}) highload block: " . implode(', ', $result->getErrorMessages()));
             }
         } else {
             throw new Exception("Hl entity with name {$data['NAME']} does not exist");
@@ -81,12 +81,12 @@ trait HlBlock
         if ($id) {
             $res = HighloadBlockTable::delete($id);
             if ($res->isSuccess()) {
-                $return[] = "Delete highload block {$entity}";
+                $return[] = "Delete highload block {$entity} ({$id})";
             } else {
-                throw new Exception("Can't delete {$entity} highload block");
+                throw new Exception("Can't delete {$entity} ({$id}) highload block: " . implode(', ', $result->getErrorMessages()));
             }
         } else {
-            throw new Exception("Hl entity with name '.$entity.' does not exist");
+            throw new Exception("Hl entity with name {$entity} does not exist");
         }
 
         return $return;
