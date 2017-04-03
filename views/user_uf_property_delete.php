@@ -1,7 +1,7 @@
 <?php echo "<?php\r\n"; ?>
 
 /**
- * Миграция для удаления пользовательского поля  '<?php echo mb_strtoupper($smart_param_1); ?>' для пользователя.
+ * Миграция для удаления пользовательского поля '<?php echo mb_strtoupper($smart_param_1); ?>' для пользователя.
  */
 class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
