@@ -12,7 +12,7 @@ use CSite;
 trait Iblock
 {
     /**
-     * @var array
+     * @var array $data
      * @var array $fields
      *
      * @return array
@@ -61,7 +61,7 @@ trait Iblock
     }
 
     /**
-     * @var array
+     * @var array $data
      * @var array $fields
      *
      * @return array
@@ -118,7 +118,7 @@ trait Iblock
     }
 
     /**
-     * @var string
+     * @var string $code
      *
      * @return array
      *
@@ -148,7 +148,7 @@ trait Iblock
     }
 
     /**
-     * @var string
+     * @var string $code
      *
      * @return int|string
      *
