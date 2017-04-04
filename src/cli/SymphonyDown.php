@@ -6,6 +6,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use marvin255\bxmigrate\repo\Files;
+use marvin255\bxmigrate\checker\HighLoadIb;
+use marvin255\bxmigrate\cli\Notifier;
+use marvin255\bxmigrate\manager\Simple;
 use marvin255\bxmigrate\Exception;
 use InvalidArgumentException;
 
@@ -30,8 +34,7 @@ class SymphonyDown extends Command
 
     protected function configure()
     {
-        $this
-            ->setName('bxmigrate:down')
+        $this->setName('bxmigrate:down')
             ->setDescription('Set down migrations')
             ->addArgument(
                 'count',
@@ -44,18 +47,10 @@ class SymphonyDown extends Command
     {
         $count = (int) $input->getArgument('count');
         $count = $count ? $count : null;
-        try {
-            $repo = new \marvin255\bxmigrate\repo\Files($this->migrationPath);
-            $checker = new \marvin255\bxmigrate\checker\HighLoadIb();
-            $manager = new \marvin255\bxmigrate\manager\Simple($repo, $checker);
-            $messages = $manager->down($count);
-            foreach ($messages as $message) {
-                $output->writeln('<info>'.$message.'</info>');
-            }
-        } catch (Exception $e) {
-            $output->writeln('<error>' . $e->getMessage() . '</error>');
-            $showException = $e->getPrevious() ?: $e;
-            $output->writeln('<error>In ' . $showException->getFile() . ' on line ' . $showException->getLine() . '</error>');
-        }
+        $repo = new Files($this->migrationPath);
+        $checker = new HighLoadIb();
+        $notifier = new Notifier($output);
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->down($count);
     }
 }

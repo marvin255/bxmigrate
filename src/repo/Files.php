@@ -115,7 +115,7 @@ class Files implements IMigrateRepo
         $migration = $this->renderMigration($viewFile, $viewData);
         file_put_contents($fileName, $migration);
 
-        return $mName;
+        return ["Migration {$mName}($fileName) created"];
     }
 
     /**

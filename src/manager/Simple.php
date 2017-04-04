@@ -17,14 +17,19 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
      * @var \marvin255\bxmigrate\IMigrateRepo
      */
     protected $checker = null;
+    /**
+     * @var \marvin255\bxmigrate\IMigrateNotifier
+     */
+    protected $notifier = null;
 
     /**
      * {@inheritdoc}
      */
-    public function __construct(\marvin255\bxmigrate\IMigrateRepo $repo, \marvin255\bxmigrate\IMigrateChecker $checker)
+    public function __construct(\marvin255\bxmigrate\IMigrateRepo $repo, \marvin255\bxmigrate\IMigrateChecker $checker, \marvin255\bxmigrate\IMigrateNotifier $notifier)
     {
         $this->repo = $repo;
         $this->checker = $checker;
+        $this->notifier = $notifier;
     }
 
     /**
@@ -32,25 +37,28 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
      */
     public function up($count = null)
     {
-        $return = [];
         $migrations = $this->repo->getMigrations();
         $upped = 0;
-        foreach ($migrations as $migration) {
-            if ($this->checker->isChecked($migration->getName())) {
-                continue;
+        try {
+            foreach ($migrations as $migration) {
+                if ($this->checker->isChecked($migration->getName())) {
+                    continue;
+                }
+                $result = $migration->managerUp();
+                $this->notifier->success($result);
+                $this->checker->check($migration->getName());
+                ++$upped;
+                if ($count && $upped === $count) {
+                    break;
+                }
             }
-            $result = $migration->managerUp();
-            $this->checker->check($migration->getName());
-            if ($result) {
-                $return = array_merge($return, $result);
-            }
-            ++$upped;
-            if ($count && $upped === $count) {
-                break;
-            }
+        } catch (\Exception $e) {
+            $errors = [];
+            $errors[] = $e->getMessage();
+            $showException = $e->getPrevious() ?: $e;
+            $errors[] = 'In ' . $showException->getFile() . ' on line ' . $showException->getLine();
+            $this->notifier->error($errors);
         }
-
-        return $return;
     }
 
     /**
@@ -59,25 +67,28 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     public function down($count = null)
     {
         $count = $count === null ? 1 : $count;
-        $return = [];
         $migrations = array_reverse($this->repo->getMigrations());
         $upped = 0;
-        foreach ($migrations as $migration) {
-            if (!$this->checker->isChecked($migration->getName())) {
-                continue;
+        try {
+            foreach ($migrations as $migration) {
+                if (!$this->checker->isChecked($migration->getName())) {
+                    continue;
+                }
+                $result = $migration->managerDown();
+                $this->notifier->success($result);
+                $this->checker->uncheck($migration->getName());
+                ++$upped;
+                if ($count && $upped === $count) {
+                    break;
+                }
             }
-            $result = $migration->managerDown();
-            $this->checker->uncheck($migration->getName());
-            if ($result) {
-                $return = array_merge($return, $result);
-            }
-            ++$upped;
-            if ($count && $upped === $count) {
-                break;
-            }
+        } catch (\Exception $e) {
+            $errors = [];
+            $errors[] = $e->getMessage();
+            $showException = $e->getPrevious() ?: $e;
+            $errors[] = 'In ' . $showException->getFile() . ' on line ' . $showException->getLine();
+            $this->notifier->error($errors);
         }
-
-        return $return;
     }
 
     /**
@@ -85,6 +96,15 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
      */
     public function create($name)
     {
-        return $this->repo->create($name);
+        try {
+            $res = $this->repo->create($name);
+            $this->notifier->success($res);
+        } catch (\Exception $e) {
+            $errors = [];
+            $errors[] = $e->getMessage();
+            $showException = $e->getPrevious() ?: $e;
+            $errors[] = 'In ' . $showException->getFile() . ' on line ' . $showException->getLine();
+            $this->notifier->error($errors);
+        }
     }
 }
