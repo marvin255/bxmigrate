@@ -22,12 +22,4 @@ interface IMigrate
      * @return array
      */
     public function managerDown();
-
-    /**
-     * Возвращает уникальное имя для данного экземпляра миграции, которое будет использовано
-     * для пометки о том, что миграция уже была применена.
-     *
-     * @return string
-     */
-    public function getName();
 }

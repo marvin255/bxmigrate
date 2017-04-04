@@ -16,6 +16,15 @@ interface IMigrateRepo
     public function getMigrations();
 
     /**
+     * Создает объект миграции по указанному имени.
+     *
+     * @param string $name
+     *
+     * @return \marvin255\bxmigrate\IMigrate
+     */
+    public function instantiateMigration($name);
+
+    /**
      * Создает в хранилище новую миграцию с указанным именем.
      *
      * @param string $name

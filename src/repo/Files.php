@@ -66,28 +66,46 @@ class Files implements IMigrateRepo
     }
 
     /**
+     * @var array
+     */
+    protected $migrations = null;
+
+    /**
+     * @inheritdoc
+     */
+    public function getMigrations()
+    {
+        if ($this->migrations === null) {
+            $this->migrations = [];
+            $regexp = $this->fileNamePrefix ? '/^('.$this->fileNamePrefix.'\S+)\.php$/' : '/^(\S+)\.php$/';
+            foreach (scandir($this->folder) as $file) {
+                if (!preg_match($regexp, $file, $matches)) {
+                    continue;
+                }
+                $this->migrations[] = $matches[1];
+            }
+        }
+
+        return $this->migrations;
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @throws \marvin255\bxmigrate\repo\Exception
      */
-    public function getMigrations()
+    public function instantiateMigration($name)
     {
-        $return = [];
-        $regexp = $this->fileNamePrefix ? '/^('.$this->fileNamePrefix.'\S+)\.php$/' : '/^(\S+)\.php$/';
-        foreach (scandir($this->folder) as $file) {
-            if (!preg_match($regexp, $file, $matches)) {
-                continue;
-            }
-            require_once $this->folder.'/'.$file;
-            $class = $matches[1];
-            if (!is_subclass_of($class, '\marvin255\bxmigrate\IMigrate')) {
-                throw new Exception('File '.$file.' has no migration class');
-            } else {
-                $return[$matches[1]] = new $class();
-            }
+        $migrations = $this->getMigrations();
+        if (!in_array($name, $migrations)) {
+            throw new Exception("Can't find file for migration with name {$name}");
+        }
+        require_once("{$this->folder}/{$name}.php");
+        if (!is_subclass_of($name, '\marvin255\bxmigrate\IMigrate')) {
+            throw new Exception("File {$name} has no migration class");
         }
 
-        return $return;
+        return new $name();
     }
 
     /**

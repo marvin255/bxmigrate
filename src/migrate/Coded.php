@@ -36,14 +36,6 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     /**
      * {@inheritdoc}
      */
-    public function getName()
-    {
-        return get_class($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function managerUp()
     {
         $result = null;
@@ -58,7 +50,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
                 $DB->Commit();
             } catch (\Exception $e) {
                 $DB->Rollback();
-                throw new Exception($this->getName() . ': ' . $e->getMessage(), null, $e);
+                throw new Exception(get_class($this) . ': ' . $e->getMessage(), null, $e);
             }
         }
 
@@ -82,7 +74,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
                 $DB->Commit();
             } catch (\Exception $e) {
                 $DB->Rollback();
-                throw new Exception($this->getName() . ': ' . $e->getMessage(), null, $e);
+                throw new Exception(get_class($this) . ': ' . $e->getMessage(), null, $e);
             }
         }
 

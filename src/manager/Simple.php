@@ -37,27 +37,28 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
      */
     public function up($count = null)
     {
-        $migrations = $this->repo->getMigrations();
-        $upped = 0;
+        $this->notifier->info('Running up migrations:', true);
         try {
-            foreach ($migrations as $migration) {
-                if ($this->checker->isChecked($migration->getName())) {
+            $migrations = $this->repo->getMigrations();
+            $upped = 0;
+            foreach ($migrations as $migrationName) {
+                if ($this->checker->isChecked($migrationName)) {
                     continue;
                 }
-                $result = $migration->managerUp();
-                $this->notifier->success($result);
-                $this->checker->check($migration->getName());
+                $this->notifier->info("Processing {$migrationName}");
+                $result = $this->repo->instantiateMigration($migrationName)->managerUp();
+                $this->checker->check($migrationName);
+                $this->notifier->success($result, true);
                 ++$upped;
                 if ($count && $upped === $count) {
                     break;
                 }
             }
+            if ($upped === 0) {
+                $this->notifier->info('There are no migrations for up', true);
+            }
         } catch (\Exception $e) {
-            $errors = [];
-            $errors[] = $e->getMessage();
-            $showException = $e->getPrevious() ?: $e;
-            $errors[] = 'In ' . $showException->getFile() . ' on line ' . $showException->getLine();
-            $this->notifier->error($errors);
+            $this->handleException($e);
         }
     }
 
@@ -66,28 +67,29 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
      */
     public function down($count = null)
     {
-        $count = $count === null ? 1 : $count;
-        $migrations = array_reverse($this->repo->getMigrations());
-        $upped = 0;
+        $this->notifier->info('Running down migrations:', true);
         try {
-            foreach ($migrations as $migration) {
-                if (!$this->checker->isChecked($migration->getName())) {
+            $count = $count === null ? 1 : $count;
+            $migrations = array_reverse($this->repo->getMigrations());
+            $upped = 0;
+            foreach ($migrations as $migrationName) {
+                if (!$this->checker->isChecked($migrationName)) {
                     continue;
                 }
-                $result = $migration->managerDown();
-                $this->notifier->success($result);
-                $this->checker->uncheck($migration->getName());
+                $this->notifier->info("Processing {$migrationName}");
+                $result = $this->repo->instantiateMigration($migrationName)->managerDown();
+                $this->checker->uncheck($migrationName);
+                $this->notifier->success($result, true);
                 ++$upped;
                 if ($count && $upped === $count) {
                     break;
                 }
             }
+            if ($upped === 0) {
+                $this->notifier->info('There are no migrations for down', true);
+            }
         } catch (\Exception $e) {
-            $errors = [];
-            $errors[] = $e->getMessage();
-            $showException = $e->getPrevious() ?: $e;
-            $errors[] = 'In ' . $showException->getFile() . ' on line ' . $showException->getLine();
-            $this->notifier->error($errors);
+            $this->handleException($e);
         }
     }
 
@@ -100,11 +102,21 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
             $res = $this->repo->create($name);
             $this->notifier->success($res);
         } catch (\Exception $e) {
-            $errors = [];
-            $errors[] = $e->getMessage();
-            $showException = $e->getPrevious() ?: $e;
-            $errors[] = 'In ' . $showException->getFile() . ' on line ' . $showException->getLine();
-            $this->notifier->error($errors);
+            $this->handleException($e);
         }
+    }
+
+    /**
+     * Обрабатывает исключение.
+     *
+     * @param \Exception $e
+     */
+    protected function handleException(\Exception $e)
+    {
+        $errors = [];
+        $errors[] = $e->getMessage();
+        $showException = $e->getPrevious() ?: $e;
+        $errors[] = 'In ' . $showException->getFile() . ' on line ' . $showException->getLine();
+        $this->notifier->error($errors);
     }
 }

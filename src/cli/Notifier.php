@@ -28,33 +28,40 @@ class Notifier implements IMigrateNotifier
     /**
      * @inheritdoc
      */
-    public function success($messages)
+    public function success($messages, $setSpace = false)
     {
-        if (!empty($messages)) {
-            $messages = is_array($messages) ? $messages : [$messages];
-            $this->writeln($messages, 'info');
-        }
+        $this->info($messages, $setSpace);
     }
 
     /**
      * @inheritdoc
      */
-    public function error($messages)
+    public function info($messages, $setSpace = false)
     {
-        if (!empty($messages)) {
-            $messages = is_array($messages) ? $messages : [$messages];
-            $this->writeln($messages, 'error');
-        }
+        $this->writeln($messages, 'info', $setSpace);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function error($messages, $setSpace = false)
+    {
+        $this->writeln($messages, 'error', $setSpace);
     }
 
     /**
      * Выводит сообщения в консоль.
      *
-     * @param array $messages
-     * @param string $type
+     * @param array|string  $messages
+     * @param string        $type
+     * @param bool          $setSpace
      */
-    protected function writeln(array $messages, $type)
+    protected function writeln($messages, $type, $setSpace = false)
     {
+        $messages = is_array($messages) ? $messages : [$messages];
+        if ($setSpace) {
+            $messages[] = '';
+        }
         foreach ($messages as $message) {
             $this->output->writeln("<{$type}>{$message}</{$type}>");
         }
