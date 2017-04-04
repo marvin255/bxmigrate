@@ -11,8 +11,10 @@ use CIBlockProperty;
 trait IblockProperty
 {
     /**
-     * @var string
-     * @var array  $data
+     * Создает новое пользовательское свойство инфоблока.
+     *
+     * @param string $iblock
+     * @param array  $data
      *
      * @return array
      *
@@ -21,40 +23,43 @@ trait IblockProperty
     protected function IblockPropertyCreate($iblock, array $data)
     {
         $return = [];
-        $ibId = $this->IblockGetIdByCode($iblock);
-        if (empty($ibId)) {
-            throw new Exception('Can not find iblock '.$iblock);
-        }
+
+        $iblock = $this->iblockLocate($iblock);
+
         if (empty($data['CODE'])) {
             throw new Exception('You must set property CODE');
         }
         $res = CIBlockProperty::GetList([], [
             'CODE' => $data['CODE'],
-            'IBLOCK_ID' => $ibId,
+            'IBLOCK_ID' => $iblock['ID'],
             'CHECK_PERMISSIONS' => 'N',
         ]);
         if ($ob = $res->Fetch()) {
-            throw new Exception("Property with code {$data['CODE']} already exists");
+            throw new Exception("Property {$data['CODE']}({$ob['ID']}) for iblock {$iblock['CODE']}({$iblock['ID']}) already exists");
         }
+
         $ib = new CIBlockProperty();
         $id = $ib->Add(array_merge([
-            'IBLOCK_ID' => $ibId,
+            'IBLOCK_ID' => $iblock['ID'],
             'CODE' => $data['CODE'],
             'XML_ID' => $data['CODE'],
             'ACTIVE' => 'Y',
         ], $data));
+
         if ($id) {
-            $return[] = "Add {$data['CODE']} iblock property";
+            $return[] = "Property {$data['CODE']}($id) for iblock {$iblock['CODE']}({$iblock['ID']}) added";
         } else {
-            throw new Exception("Can't create {$data['CODE']} iblock property");
+            throw new Exception("Can't create property {$data['CODE']} for iblock {$iblock['CODE']}({$iblock['ID']})");
         }
 
         return $return;
     }
 
     /**
-     * @var string
-     * @var array  $data
+     * Обновляет указанное пользовательское свойство инфоблока.
+     *
+     * @param string $iblock
+     * @param array  $data
      *
      * @return array
      *
@@ -63,34 +68,36 @@ trait IblockProperty
     protected function IblockPropertyUpdate($iblock, array $data)
     {
         $return = [];
-        $ibId = $this->IblockGetIdByCode($iblock);
-        if (empty($ibId)) {
-            throw new Exception('Can not find iblock '.$iblock);
-        }
+
+        $iblock = $this->iblockLocate($iblock);
+
         if (empty($data['CODE'])) {
             throw new Exception('You must set property CODE');
         }
+
         $res = CIBlockProperty::GetList([], [
             'CODE' => $data['CODE'],
-            'IBLOCK_ID' => $ibId,
+            'IBLOCK_ID' => $iblock['ID'],
             'CHECK_PERMISSIONS' => 'N',
         ]);
         if ($ob = $res->Fetch()) {
             $ib = new CIBlockProperty();
             $id = $ib->Update($ob['ID'], $data);
             if ($id) {
-                $return[] = "Update {$data['CODE']} iblock property";
+                $return[] = "Property {$data['CODE']}({$ob['ID']}) for iblock {$iblock['CODE']}({$iblock['ID']}) updated";
             } else {
-                throw new Exception("Can't update {$data['CODE']} iblock property");
+                throw new Exception("Can't update {$data['CODE']} property for iblock {$iblock['CODE']}({$iblock['ID']})");
             }
         } else {
-            throw new Exception("Can't find {$data['CODE']} iblock property");
+            throw new Exception("Can't find {$data['CODE']} property for iblock {$iblock['CODE']}({$iblock['ID']})");
         }
 
         return $return;
     }
 
     /**
+     * Удаляет указанное пользовательское свойство инфоблока.
+     *
      * @param string $iblock
      * @param string $code
      *
@@ -101,21 +108,22 @@ trait IblockProperty
     protected function IblockPropertyDelete($iblock, $code)
     {
         $return = [];
-        $ibId = $this->IblockGetIdByCode($iblock);
-        if (!$ibId) {
-            throw new Exception("Can't find iblock {$iblock}");
-        }
+
+        $iblock = $this->iblockLocate($iblock);
+
         $res = CIBlockProperty::GetList([], [
             'CODE' => $code,
-            'IBLOCK_ID' => $ibId,
+            'IBLOCK_ID' => $iblock['ID'],
             'CHECK_PERMISSIONS' => 'N',
         ]);
         if ($ob = $res->Fetch()) {
             if (CIBlockProperty::Delete($ob['ID'])) {
-                $return[] = "Delete {$code} iblock property";
+                $return[] = "Property {$code} for iblock {$iblock['CODE']}({$iblock['ID']}) deleted";
             } else {
-                throw new Exception("Can't delete iblock property {$code}");
+                throw new Exception("Can't delete iblock property {$code} for iblock {$iblock['CODE']}({$iblock['ID']})");
             }
+        } else {
+            throw new Exception("Can't find property {$code} for iblock {$iblock['CODE']}({$iblock['ID']})");
         }
 
         return $return;
