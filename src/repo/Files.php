@@ -185,7 +185,7 @@ class Files implements IMigrateRepo
             'hlblock_property_delete' => '/^delete_hlblock_(.+)_property_(.+)$/i',
             'hlblock_create' => '/^create_hlblock_(.+)$/i',
             'hlblock_update' => '/^update_hlblock_(.+)$/i',
-            'hlblock_delete' => '/^create_hlblock_(.+)$/i',
+            'hlblock_delete' => '/^delete_hlblock_(.+)$/i',
 
             'user_uf_property_create' => '/^create_user_uf_(.+)$/i',
             'user_uf_property_update' => '/^update_user_uf_(.+)$/i',
