@@ -44,35 +44,33 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $repo->create('test_3');
         $migrations = $repo->getMigrations();
         $this->assertCount(3, $migrations, 'getMigrations method must return list of all migrations.');
-        foreach ($migrations as $key => $migration) {
-            $this->assertInstanceOf(
-                get_class($migrationMock),
-                $migration,
-                'All migrations must implements class from parentClass param'
-            );
+        foreach ($migrations as $migration) {
             $this->assertRegExp(
                 '/prefix_\d+_(test_1|test_2|test_3)/',
-                $key,
+                $migration,
                 'All migrations must have properly file names'
             );
         }
     }
 
-    public function testGetMigartionsWrongInterfaceException()
+    public function testInstatntiateMigration()
     {
         $folder = $this->getTestFolder();
-        file_put_contents($folder.'/prefix_123_test.php', '<?php class prefix_123_test {}');
         $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
             ->getMock();
         $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
-        $this->setExpectedException(
-            '\marvin255\bxmigrate\repo\Exception',
-            'File prefix_123_test.php has no migration class'
+        $repo->create('test_1');
+
+        $migrations = $repo->getMigrations();
+        $this->assertCount(1, $migrations);
+
+        $this->assertInstanceOf(
+            get_class($migrationMock),
+            $repo->instantiateMigration($migrations[0])
         );
-        $repo->getMigrations();
     }
 
-    public function testCreateEmptyNameException()
+    public function testInstatntiateMigrationWithWrongFileName()
     {
         $folder = $this->getTestFolder();
         $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
@@ -80,36 +78,73 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
         $this->setExpectedException(
             '\marvin255\bxmigrate\repo\Exception',
-            'Can not create migration file for name:  /// .. \\'
+            'Can\'t find file for migration with name test_1'
         );
-        $repo->create(' /// .. \\');
+        $repo->instantiateMigration('test_1');
     }
 
-    public function testCreateWrongTemplateException()
+    public function testInstatntiateMigrationWithWrongMigrationClass()
     {
         $folder = $this->getTestFolder();
         $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
             ->getMock();
         $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
+
+        file_put_contents(
+            $folder.'/prefix_test_migration.php',
+            "<?php class prefix_test_migration {}\r\n;"
+        );
         $this->setExpectedException(
             '\marvin255\bxmigrate\repo\Exception',
-            'Can\'t find migration template file for migration: create_iblock_test'
+            'File prefix_test_migration has no migration class'
         );
-        $repo->create('create_iblock_test');
+        $repo->instantiateMigration('prefix_test_migration');
     }
 
-    public function testCreateMigartionExistException()
+    public function testCreateWithWrongName()
     {
         $folder = $this->getTestFolder();
-        file_put_contents($folder.'/prefix_'.time().'_create_iblock_test.php', '');
         $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
             ->getMock();
         $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
         $this->setExpectedException(
             '\marvin255\bxmigrate\repo\Exception',
-            'Migration already exists: create_iblock_test'
+            'Can not create migration file for name:     ~~~~~~  '
         );
-        $repo->create('create_iblock_test');
+        $repo->create('    ~~~~~~  ');
+    }
+
+    public function testCreateWithAlreadyExistedName()
+    {
+        $folder = $this->getTestFolder();
+        $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
+            ->getMock();
+        $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
+
+        file_put_contents(
+            $folder.'/prefix_'.time().'_test_migration.php',
+            "<?php class prefix_test_migration {}\r\n;"
+        );
+
+        $this->setExpectedException(
+            '\marvin255\bxmigrate\repo\Exception',
+            'Migration already exists: test_migration'
+        );
+        $repo->create('test_migration');
+    }
+
+    public function testCreateWithEmptyMigrationTemplate()
+    {
+        $folder = $this->getTestFolder();
+        $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
+            ->getMock();
+        $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
+
+        $this->setExpectedException(
+            '\marvin255\bxmigrate\repo\Exception',
+            'Can\'t find migration template file for migration: create_iblock_type_test'
+        );
+        $repo->create('create_iblock_type_test');
     }
 
     public function setUp()
