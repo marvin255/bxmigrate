@@ -11,7 +11,7 @@ interface IMigrateNotifier
      * Выводит сообщения об успешном завершении.
      *
      * @param array|string $messages
-     * @param bool $setSpace
+     * @param bool         $setSpace
      */
     public function success($messages, $setSpace = false);
 
@@ -19,7 +19,7 @@ interface IMigrateNotifier
      * Выводит информационное сообщение.
      *
      * @param array|string $messages
-     * @param bool $setSpace
+     * @param bool         $setSpace
      */
     public function info($messages, $setSpace = false);
 
@@ -27,7 +27,7 @@ interface IMigrateNotifier
      * Выводит сообщения об ошибке.
      *
      * @param array|string $messages
-     * @param bool $setSpace
+     * @param bool         $setSpace
      */
     public function error($messages, $setSpace = false);
 }

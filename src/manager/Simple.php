@@ -116,7 +116,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
         $errors = [];
         $errors[] = $e->getMessage();
         $showException = $e->getPrevious() ?: $e;
-        $errors[] = 'In ' . $showException->getFile() . ' on line ' . $showException->getLine();
+        $errors[] = 'In '.$showException->getFile().' on line '.$showException->getLine();
         $this->notifier->error($errors);
     }
 }

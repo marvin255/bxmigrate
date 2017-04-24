@@ -71,7 +71,7 @@ class Files implements IMigrateRepo
     protected $migrations = null;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getMigrations()
     {
@@ -100,7 +100,7 @@ class Files implements IMigrateRepo
         if (!in_array($name, $migrations)) {
             throw new Exception("Can't find file for migration with name {$name}");
         }
-        require_once("{$this->folder}/{$name}.php");
+        require_once "{$this->folder}/{$name}.php";
         if (!is_subclass_of($name, '\marvin255\bxmigrate\IMigrate')) {
             throw new Exception("File {$name} has no migration class");
         }

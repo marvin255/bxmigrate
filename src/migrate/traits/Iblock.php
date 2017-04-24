@@ -102,7 +102,9 @@ trait Iblock
 
         foreach ($data['SITE_ID'] as $siteId) {
             $id = $this->iblockGetIdByCode($data['CODE'], $siteId);
-            if ($id === null) continue;
+            if ($id === null) {
+                continue;
+            }
             throw new Exception("Can't create iblock {$data['CODE']}, same iblock ID = {$id} already exists.");
         }
 
@@ -162,7 +164,7 @@ trait Iblock
     protected function iblockLocate($id)
     {
         if (empty($id)) {
-            throw new Exception("Id parameter must not be empty");
+            throw new Exception('Id parameter must not be empty');
         } elseif (!is_numeric($id)) {
             $findByCode = $this->iblockGetIdByCode($id);
             if ($findByCode === null) {

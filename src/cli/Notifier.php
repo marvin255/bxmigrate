@@ -26,7 +26,7 @@ class Notifier implements IMigrateNotifier
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function success($messages, $setSpace = false)
     {
@@ -34,7 +34,7 @@ class Notifier implements IMigrateNotifier
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function info($messages, $setSpace = false)
     {
@@ -42,7 +42,7 @@ class Notifier implements IMigrateNotifier
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function error($messages, $setSpace = false)
     {
@@ -52,9 +52,9 @@ class Notifier implements IMigrateNotifier
     /**
      * Выводит сообщения в консоль.
      *
-     * @param array|string  $messages
-     * @param string        $type
-     * @param bool          $setSpace
+     * @param array|string $messages
+     * @param string       $type
+     * @param bool         $setSpace
      */
     protected function writeln($messages, $type, $setSpace = false)
     {
