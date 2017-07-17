@@ -53,7 +53,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
                 $this->checker->check($migrationName);
                 $this->notifier->success($result, true);
                 ++$upped;
-                if ($count && ($upped === $count || !is_numeric($count))) {
+                if ($count && ((int) $upped === (int) $count || !is_numeric($count))) {
                     break;
                 }
             }
@@ -87,7 +87,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
                 $this->checker->uncheck($migrationName);
                 $this->notifier->success($result, true);
                 ++$upped;
-                if ($count && ($upped === $count || !is_numeric($count))) {
+                if ($count && ((int) $upped === (int) $count || !is_numeric($count))) {
                     break;
                 }
             }
