@@ -42,7 +42,10 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
             $migrations = $this->repo->getMigrations();
             $upped = 0;
             foreach ($migrations as $migrationName) {
-                if ($this->checker->isChecked($migrationName)) {
+                if (
+                    $this->checker->isChecked($migrationName)
+                    || $count && !is_numeric($count) && $count !== $migrationName
+                ){
                     continue;
                 }
                 $this->notifier->info("Processing {$migrationName}");
@@ -50,7 +53,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
                 $this->checker->check($migrationName);
                 $this->notifier->success($result, true);
                 ++$upped;
-                if ($count && $upped === $count) {
+                if ($count && ($upped === $count || !is_numeric($count))) {
                     break;
                 }
             }
@@ -73,7 +76,10 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
             $migrations = array_reverse($this->repo->getMigrations());
             $upped = 0;
             foreach ($migrations as $migrationName) {
-                if (!$this->checker->isChecked($migrationName)) {
+                if (
+                    !$this->checker->isChecked($migrationName)
+                    || $count && !is_numeric($count) && $count !== $migrationName
+                ){
                     continue;
                 }
                 $this->notifier->info("Processing {$migrationName}");
@@ -81,7 +87,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
                 $this->checker->uncheck($migrationName);
                 $this->notifier->success($result, true);
                 ++$upped;
-                if ($count && $upped === $count) {
+                if ($count && ($upped === $count || !is_numeric($count))) {
                     break;
                 }
             }

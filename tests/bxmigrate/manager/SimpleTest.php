@@ -70,6 +70,43 @@ class SimpleTest extends \PHPUnit_Framework_TestCase
         $manager = $this->getManager($repo, $checker)->up(1);
     }
 
+    public function testUpWithName()
+    {
+        $migration = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
+            ->getMock();
+        $migration->expects($this->once())
+            ->method('managerUp')
+            ->will($this->returnValue(['test1', 'test2']));
+
+        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
+            ->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
+        $repo->expects($this->once())
+            ->method('instantiateMigration')
+            ->with($this->equalTo('migration2'))
+            ->will($this->returnValue($migration));
+
+        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnValue(false));
+        $checker->expects($this->once())->method('check')->with($this->equalTo('migration2'));
+
+        $notifications = [];
+        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
+        $notifier->method('info')->will($this->returnCallback(function ($message) use (&$notifications) {
+            $notifications['info'][] = $message;
+        }));
+        $notifier->method('success')->will($this->returnCallback(function ($message) use (&$notifications) {
+            $notifications['success'] = $message;
+        }));
+
+        $this->getManager($repo, $checker, $notifier)->up('migration2');
+
+        $this->assertSame(
+            ['info' => ['Running up migrations:', 'Processing migration2'], 'success' => ['test1', 'test2']],
+            $notifications
+        );
+    }
+
     public function testUpWithEmptyMigrationsList()
     {
         $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
@@ -179,6 +216,43 @@ class SimpleTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true));
 
         $manager = $this->getManager($repo, $checker)->down(1);
+    }
+
+    public function testDownWithName()
+    {
+        $migration = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
+            ->getMock();
+        $migration->expects($this->once())
+            ->method('managerDown')
+            ->will($this->returnValue(['test1', 'test2']));
+
+        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
+            ->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
+        $repo->expects($this->once())
+            ->method('instantiateMigration')
+            ->with($this->equalTo('migration2'))
+            ->will($this->returnValue($migration));
+
+        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnValue(true));
+        $checker->expects($this->once())->method('uncheck')->with($this->equalTo('migration2'));
+
+        $notifications = [];
+        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
+        $notifier->method('info')->will($this->returnCallback(function ($message) use (&$notifications) {
+            $notifications['info'][] = $message;
+        }));
+        $notifier->method('success')->will($this->returnCallback(function ($message) use (&$notifications) {
+            $notifications['success'] = $message;
+        }));
+
+        $this->getManager($repo, $checker, $notifier)->down('migration2');
+
+        $this->assertSame(
+            ['info' => ['Running down migrations:', 'Processing migration2'], 'success' => ['test1', 'test2']],
+            $notifications
+        );
     }
 
     public function testDownWithEmptyMigrationsList()
