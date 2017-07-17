@@ -1,6 +1,8 @@
 Консольные миграции для 1С Битрикс
 ==================================
 
+[![Build Status](https://travis-ci.org/marvin255/bxmigrate.svg?branch=master)](https://travis-ci.org/marvin255/bxmigrate)
+
 Реализация консольных миграций для 1С Битрикс.
 
 
