@@ -43,8 +43,7 @@ class SymphonyDown extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $count = (int) $input->getArgument('count');
-        $count = $count ? $count : null;
+        $count = $input->getArgument('count') ?: null;
         $repo = new Files($this->migrationPath);
         $checker = new HighLoadIb();
         $notifier = new Notifier($output);
