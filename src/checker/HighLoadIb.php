@@ -153,7 +153,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
             ]);
             $id = $result->getId();
             if (!$id) {
-                Exception('Can\'t create HL table '.implode(', ', $result->getErrorMessages()));
+                throw new Exception('Can\'t create HL table '.implode(', ', $result->getErrorMessages()));
             }
         } else {
             $id = $hlblock['ID'];
