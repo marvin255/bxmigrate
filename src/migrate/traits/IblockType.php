@@ -20,7 +20,7 @@ trait IblockType
     protected function IblockTypeCreate(array $data)
     {
         $return = [];
-        if (empty(trim($data['ID']))) {
+        if (empty($data['ID'])) {
             throw new Exception('You must set iblock type ID');
         }
         $res = CIBlockType::GetByID($data['ID']);
