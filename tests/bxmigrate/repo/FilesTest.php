@@ -91,7 +91,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
 
         file_put_contents(
-            $folder.'/prefix_test_migration.php',
+            $folder . '/prefix_test_migration.php',
             "<?php class prefix_test_migration {}\r\n;"
         );
         $this->setExpectedException(
@@ -122,7 +122,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
         $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
 
         file_put_contents(
-            $folder.'/prefix_'.time().'_test_migration.php',
+            $folder . '/prefix_' . time() . '_test_migration.php',
             "<?php class prefix_test_migration {}\r\n;"
         );
 
@@ -154,7 +154,7 @@ class FilesTest extends \PHPUnit_Framework_TestCase
             mkdir($folder);
         }
         file_put_contents(
-            $folder.'/default.php',
+            $folder . '/default.php',
             '<?php echo "<?php class {$name} extends {$parentClass} {}\r\n";'
         );
     }
@@ -176,6 +176,6 @@ class FilesTest extends \PHPUnit_Framework_TestCase
 
     protected function getTestFolder()
     {
-        return __DIR__.'/bxmigrateunit';
+        return __DIR__ . '/bxmigrateunit';
     }
 }

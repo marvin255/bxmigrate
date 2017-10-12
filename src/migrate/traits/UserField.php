@@ -29,7 +29,7 @@ trait UserField
             throw new Exception('You must set group ENTITY_ID');
         }
         if ($this->UFGetIdByCode($data['ENTITY_ID'], $data['FIELD_NAME'])) {
-            throw new Exception('UF with code '.$data['FIELD_NAME'].' already exists');
+            throw new Exception('UF with code ' . $data['FIELD_NAME'] . ' already exists');
         }
         $ib = new CUserTypeEntity();
         $id = $ib->Add(array_merge(['USER_TYPE_ID' => 'string'], $data));

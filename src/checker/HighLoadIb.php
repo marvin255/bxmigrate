@@ -65,7 +65,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
                 'UF_MIGRATION_DATE' => date('d.m.Y'),
             ]);
             if (!$result->isSuccess()) {
-                throw new Exception('Can\'t check migration in HL: '.implode(', ', $result->getErrorMessages()));
+                throw new Exception('Can\'t check migration in HL: ' . implode(', ', $result->getErrorMessages()));
             }
         }
     }
@@ -83,7 +83,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
             $class = $this->compileEntity($hlblock);
             $result = $class::delete($checked[$migration]['ID']);
             if (!$result->isSuccess()) {
-                throw new Exception('Can\'t delete migration in HL '.implode(', ', $result->getErrorMessages()));
+                throw new Exception('Can\'t delete migration in HL ' . implode(', ', $result->getErrorMessages()));
             }
         }
     }
@@ -153,7 +153,7 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
             ]);
             $id = $result->getId();
             if (!$id) {
-                throw new Exception('Can\'t create HL table '.implode(', ', $result->getErrorMessages()));
+                throw new Exception('Can\'t create HL table ' . implode(', ', $result->getErrorMessages()));
             }
         } else {
             $id = $hlblock['ID'];

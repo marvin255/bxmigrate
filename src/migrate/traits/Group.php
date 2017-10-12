@@ -24,7 +24,7 @@ trait Group
             throw new Exception('You must set group STRING_ID');
         }
         if ($this->UserGetGroupIdByCode($data['STRING_ID'])) {
-            throw new Exception('Group with STRING_ID '.$data['STRING_ID'].' already exists');
+            throw new Exception('Group with STRING_ID ' . $data['STRING_ID'] . ' already exists');
         }
         $ib = new CGroup();
         $id = $ib->Add(array_merge(['ACTIVE' => 'Y'], $data));

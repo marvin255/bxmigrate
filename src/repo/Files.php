@@ -44,15 +44,15 @@ class Files implements IMigrateRepo
     ) {
         if (empty($folder) || !is_dir($folder) || !is_writable($folder)) {
             throw new Exception(
-                'Migration folder does not exist: '.(empty($folder) ? 'null' : $folder)
+                'Migration folder does not exist: ' . (empty($folder) ? 'null' : $folder)
             );
         } else {
             $this->folder = $folder;
         }
-        $templatesFolder = $templatesFolder ? $templatesFolder : __DIR__.'/../../views';
+        $templatesFolder = $templatesFolder ? $templatesFolder : __DIR__ . '/../../views';
         if (!is_dir($templatesFolder)) {
             throw new Exception(
-                'Migration template folder does not exist: '.(empty($templatesFolder) ? 'null' : $templatesFolder)
+                'Migration template folder does not exist: ' . (empty($templatesFolder) ? 'null' : $templatesFolder)
             );
         } else {
             $this->templatesFolder = $templatesFolder;
@@ -77,7 +77,7 @@ class Files implements IMigrateRepo
     {
         if ($this->migrations === null) {
             $this->migrations = [];
-            $regexp = $this->fileNamePrefix ? '/^('.$this->fileNamePrefix.'\S+)\.php$/' : '/^(\S+)\.php$/';
+            $regexp = $this->fileNamePrefix ? '/^(' . $this->fileNamePrefix . '\S+)\.php$/' : '/^(\S+)\.php$/';
             foreach (scandir($this->folder) as $file) {
                 if (!preg_match($regexp, $file, $matches)) {
                     continue;
@@ -117,16 +117,16 @@ class Files implements IMigrateRepo
     {
         $name = $this->clearMigartionName($mName);
         if ($name === '') {
-            throw new Exception('Can not create migration file for name: '.$mName);
+            throw new Exception('Can not create migration file for name: ' . $mName);
         }
-        $name = $this->fileNamePrefix.'_'.time().'_'.$name;
+        $name = $this->fileNamePrefix . '_' . time() . '_' . $name;
         $fileName = "{$this->folder}/{$name}.php";
         if (file_exists($fileName)) {
-            throw new Exception('Migration already exists: '.$mName);
+            throw new Exception('Migration already exists: ' . $mName);
         }
         list($viewFile, $viewData) = $this->getView($mName);
         if (!file_exists($viewFile)) {
-            throw new Exception('Can\'t find migration template file for migration: '.$mName);
+            throw new Exception('Can\'t find migration template file for migration: ' . $mName);
         }
         $viewData['name'] = $name;
         $viewData['parentClass'] = $this->parentClass;
@@ -214,7 +214,7 @@ class Files implements IMigrateRepo
             $view = 'default.php';
         }
 
-        return [$this->templatesFolder.'/'.$view, $params];
+        return [$this->templatesFolder . '/' . $view, $params];
     }
 
     /**
