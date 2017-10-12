@@ -24,8 +24,19 @@ class <?php echo $name; if (!empty($parentClass)) {
                 'CODE' => '<?php echo mb_strtolower($smart_param_2); ?>',
                 'SORT' => 500,
                 'PROPERTY_TYPE' => 'S',
-                'MULTIPLE' => 'N',
-                'WITH_DESCRIPTION' => 'N',
+
+                'IS_REQUIRED' => 'N', //Обязательное
+                'MULTIPLE' => 'N',  //Множественное
+                'WITH_DESCRIPTION' => 'N', //Выводить поле для описания
+                'DEFAULT_VALUE' => '', //Значение по умолчанию
+
+                'SEARCHABLE' => 'N', //Значения свойства участвуют в поиске
+                'FILTRABLE' => 'N', //Поле для фильтрации
+                'MULTIPLE_CNT' => 5, //Количество полей для ввода новых множественных значений
+                'HINT' => '', //Подсказка
+                'DISPLAY_EXPANDED' => 'N', //Показать развёрнутым
+
+                'USER_TYPE_SETTINGS' => [], //Настройки поля
             ]
         );
     }
