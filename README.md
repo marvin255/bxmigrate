@@ -174,6 +174,6 @@ $application->run();
     * `/^create_hlblock_(.+)$/i` (`create_hlblock_OrderForm`) - Создает сущность highload инфоблока с названием, указанным в первом параметре.
     * `/^update_hlblock_(.+)$/i` (`update_hlblock_OrderForm`) - Обновляет сущность highload инфоблока с названием, указанным в первом параметре.
     * `/^delete_hlblock_(.+)$/i` (`delete_hlblock_OrderForm`) - Удаляет сущность highload инфоблока с названием, указанным в первом параметре.
-    * `/^create_email_event_type_(.+)_lid_([^_]+)$/i` (`create_email_event_type_TEST_MESSAGE`) - Создает тип почтовых событий с названием, указанным в первом параметре, и привязанным к языку из второго параметра.
-    * `/^update_email_event_type_(.+)_lid_([^_]+)$/i` (`update_email_event_type_TEST_MESSAGE`) - Обновляет тип почтовых событий с названием, указанным в первом параметре, и привязанным к языку из второго параметра.
-    * `/^delete_email_event_type_(.+)_lid_([^_]+)$/i` (`delete_email_event_type_TEST_MESSAGE`) - Удаляет тип почтовых событий с названием, указанным в первом параметре, и привязанным к языку из второго параметра.
+    * `/^create_email_event_type_(.+)_lid_([^_]+)$/i` (`create_email_event_type_TEST_MESSAGE_ru`) - Создает тип почтовых событий с названием, указанным в первом параметре, и привязанным к языку из второго параметра.
+    * `/^update_email_event_type_(.+)_lid_([^_]+)$/i` (`update_email_event_type_TEST_MESSAGE_ru`) - Обновляет тип почтовых событий с названием, указанным в первом параметре, и привязанным к языку из второго параметра.
+    * `/^delete_email_event_type_(.+)_lid_([^_]+)$/i` (`delete_email_event_type_TEST_MESSAGE_ru`) - Удаляет тип почтовых событий с названием, указанным в первом параметре, и привязанным к языку из второго параметра.
