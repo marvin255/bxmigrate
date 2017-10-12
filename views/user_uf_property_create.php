@@ -7,6 +7,9 @@ class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
 } echo "\r\n"; ?>
 {
+    /**
+     * @inheritdoc
+     */
     public function up()
     {
         return $this->UFCreate([
@@ -19,6 +22,9 @@ class <?php echo $name; if (!empty($parentClass)) {
         ]);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function down()
     {
         return $this->UFDelete('USER', 'UF_<?php echo mb_strtoupper($smart_param_1); ?>');

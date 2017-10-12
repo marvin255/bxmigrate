@@ -7,6 +7,9 @@ class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
 } echo "\r\n"; ?>
 {
+    /**
+     * @inheritdoc
+     */
     public function up()
     {
         return $this->IblockCreate([
@@ -51,6 +54,9 @@ class <?php echo $name; if (!empty($parentClass)) {
         ]);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function down()
     {
         return $this->IblockDelete('<?php echo mb_strtolower($smart_param_1); ?>');

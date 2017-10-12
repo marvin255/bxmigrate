@@ -7,6 +7,9 @@ class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
 } echo "\r\n"; ?>
 {
+    /**
+     * @inheritdoc
+     */
     public function up()
     {
         return $this->IblockPropertyDelete(
@@ -15,6 +18,9 @@ class <?php echo $name; if (!empty($parentClass)) {
         );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function down()
     {
         return $this->IblockPropertyCreate(

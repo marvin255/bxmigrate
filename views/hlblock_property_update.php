@@ -7,6 +7,9 @@ class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
 } echo "\r\n"; ?>
 {
+    /**
+     * @inheritdoc
+     */
     public function up()
     {
         $id = $this->HLGetIdByCode('<?php echo ucfirst($smart_param_1); ?>');
@@ -16,6 +19,9 @@ class <?php echo $name; if (!empty($parentClass)) {
         );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function down()
     {
         $id = $this->HLGetIdByCode('<?php echo ucfirst($smart_param_1); ?>');

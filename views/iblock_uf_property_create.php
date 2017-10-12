@@ -7,6 +7,9 @@ class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
 } echo "\r\n"; ?>
 {
+    /**
+     * @inheritdoc
+     */
     public function up()
     {
         $id = $this->IblockGetIdByCode('<?php echo mb_strtolower($smart_param_1); ?>');
@@ -20,6 +23,9 @@ class <?php echo $name; if (!empty($parentClass)) {
         ]);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function down()
     {
         $id = $this->IblockGetIdByCode('<?php echo mb_strtolower($smart_param_1); ?>');

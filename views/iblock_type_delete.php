@@ -7,11 +7,17 @@ class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
 } echo "\r\n"; ?>
 {
+    /**
+     * @inheritdoc
+     */
     public function up()
     {
         return $this->IblockTypeDelete('<?php echo mb_strtolower($smart_param_1); ?>');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function down()
     {
         return $this->IblockTypeCreate([
