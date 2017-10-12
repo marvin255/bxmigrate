@@ -53,7 +53,7 @@ trait IblockType
     protected function IblockTypeUpdate($data)
     {
         $return = [];
-        if (empty(trim($data['ID']))) {
+        if (empty($data['ID'])) {
             throw new Exception('You must set iblock type ID');
         }
         $res = CIBlockType::GetList([], [
