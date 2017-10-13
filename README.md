@@ -177,3 +177,6 @@ $application->run();
     * `/^create_email_event_type_(.+)_lid_([^_]+)$/i` (`create_email_event_type_TEST_MESSAGE_ru`) - Создает тип почтовых событий с названием, указанным в первом параметре, и привязанным к языку из второго параметра.
     * `/^update_email_event_type_(.+)_lid_([^_]+)$/i` (`update_email_event_type_TEST_MESSAGE_ru`) - Обновляет тип почтовых событий с названием, указанным в первом параметре, и привязанным к языку из второго параметра.
     * `/^delete_email_event_type_(.+)_lid_([^_]+)$/i` (`delete_email_event_type_TEST_MESSAGE_ru`) - Удаляет тип почтовых событий с названием, указанным в первом параметре, и привязанным к языку из второго параметра.
+    * `/^create_email_template_(.+)$/i` (`create_email_template_TEST_MESSAGE`) - Создает шаблон почтового сообщения для события с типом, указанном в первом параметре.
+    * `/^update_email_template_(.+)$/i` (`update_email_template_TEST_MESSAGE`) - Обновляет шаблон почтового сообщения для события с типом, указанном в первом параметре.
+    * `/^delete_email_template_(.+)$/i` (`delete_email_template_TEST_MESSAGE`) - Удаляет шаблон почтового сообщения для события с типом, указанном в первом параметре.

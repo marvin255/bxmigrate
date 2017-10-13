@@ -11,6 +11,7 @@ use marvin255\bxmigrate\migrate\traits\Iblock;
 use marvin255\bxmigrate\migrate\traits\IblockProperty;
 use marvin255\bxmigrate\migrate\traits\IblockType;
 use marvin255\bxmigrate\migrate\traits\EmailEvent;
+use marvin255\bxmigrate\migrate\traits\EmailTemplate;
 
 /**
  * Базовая миграция для битрикса. Изменения задаются через использование функций стандартного API битрикса.
@@ -25,6 +26,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     use IblockProperty;
     use IblockType;
     use EmailEvent;
+    use EmailTemplate;
 
     /**
      * В конструкторе подключаем все модули битрикса, которые будем использовать в миграции.

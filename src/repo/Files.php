@@ -197,6 +197,10 @@ class Files implements IMigrateRepo
             'email_event_type_create' => '/^create_email_event_type_(.+)_lid_([^_]+)$/i',
             'email_event_type_update' => '/^update_email_event_type_(.+)_lid_([^_]+)$/i',
             'email_event_type_delete' => '/^delete_email_event_type_(.+)_lid_([^_]+)$/i',
+
+            'email_template_create' => '/^create_email_template_(.+)$/i',
+            'email_template_update' => '/^update_email_template_(.+)$/i',
+            'email_template_delete' => '/^delete_email_template_(.+)$/i',
         ];
 
         $view = null;
