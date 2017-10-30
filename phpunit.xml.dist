@@ -6,7 +6,7 @@
     beStrictAboutTestsThatDoNotTestAnything="true">
 
     <testsuites>
-        <testsuite name="Serviform Test Suite">
+        <testsuite name="Bxmigrate test suite">
             <directory>tests/bxmigrate</directory>
         </testsuite>
     </testsuites>
@@ -14,6 +14,9 @@
     <filter>
         <whitelist>
             <directory>src</directory>
+            <exclude>
+                <file>src/Autoloader.php</file>
+            </exclude>
         </whitelist>
     </filter>
 </phpunit>
