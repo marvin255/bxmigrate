@@ -5,6 +5,9 @@ namespace marvin255\bxmigrate\migrate\traits;
 use marvin255\bxmigrate\migrate\Exception;
 use Bitrix\Highloadblock\HighloadBlockTable;
 use Bitrix\Highloadblock\HighloadBlockLangTable;
+use Bitrix\Highloadblock\HighloadBlockRightsTable;
+use Bitrix\Main\GroupTable;
+use Bitrix\Main\TaskTable;
 
 /**
  * Трэйт с функциями для высоконагруженных инфоблоков.
@@ -31,11 +34,14 @@ trait HlBlock
             throw new Exception("Hl entity with name {$data['NAME']} ({$id}) already exists");
         }
         $arLoad = $data;
-        unset($arLoad['LANGS']);
+        unset($arLoad['LANGS'], $arLoad['RIGHTS']);
         $result = HighloadBlockTable::add($arLoad);
         if ($result->isSuccess()) {
             if (!empty($data['LANGS'])) {
                 $this->HLSetLangs($result->getId(), $data['LANGS']);
+            }
+            if (!empty($data['RIGHTS'])) {
+                $this->HLSetRights($result->getId(), $data['RIGHTS']);
             }
             $return[] = "Add {$data['NAME']} (" . $result->getId() . ') highload block';
         } else {
@@ -60,11 +66,14 @@ trait HlBlock
         }
         if ($id = $this->HLGetIdByCode($data['NAME'])) {
             $arLoad = $data;
-            unset($arLoad['LANGS'], $arLoad['NAME']);
+            unset($arLoad['LANGS'], $arLoad['RIGHTS'], $arLoad['NAME']);
             $result = HighloadBlockTable::update($id, $arLoad);
             if ($res->isSuccess()) {
                 if (!empty($data['LANGS'])) {
                     $this->HLSetLangs($id, $data['LANGS']);
+                }
+                if (!empty($data['RIGHTS'])) {
+                    $this->HLSetRights($id, $data['RIGHTS']);
                 }
                 $return[] = "Update {$data['NAME']} ({$id}) highload block";
             } else {
@@ -93,7 +102,7 @@ trait HlBlock
             if ($res->isSuccess()) {
                 $return[] = "Delete highload block {$entity} ({$id})";
             } else {
-                throw new Exception("Can't delete {$entity} ({$id}) highload block: " . implode(', ', $result->getErrorMessages()));
+                throw new Exception("Can't delete {$entity} ({$id}) highload block: " . implode(', ', $res->getErrorMessages()));
             }
         } else {
             throw new Exception("Hl entity with name {$entity} does not exist");
@@ -115,6 +124,53 @@ trait HlBlock
         $hlblock = HighloadBlockTable::getRow($filter);
 
         return !empty($hlblock['ID']) ? $hlblock['ID'] : null;
+    }
+
+    /**
+     * Задает параметры прав доступа для hl блока.
+     *
+     * @param int   $hlId   Идентификатор блока
+     * @param array $rights Массив прав
+     *
+     * @throws \marvin255\bxmigrate\migrate\Exception
+     */
+    protected function HLSetRights($hlId, array $rights)
+    {
+        $res = HighloadBlockRightsTable::getList([
+            'filter' => ['HL_ID' => $hlId],
+        ]);
+        while ($right = $res->fetch()) {
+            HighloadBlockRightsTable::delete($right['ID']);
+        }
+
+        $groups = [];
+        $res = GroupTable::getList();
+        while ($group = $res->fetch()) {
+            $groups[$group['STRING_ID']] = $group;
+        }
+
+        $tasks = [];
+        $res = TaskTable::getList(['filter' => ['=MODULE_ID' => 'highloadblock']]);
+        while ($task = $res->fetch()) {
+            $tasks[$task['LETTER']] = $task;
+        }
+
+        foreach ($rights as $groupCode => $taskLetter) {
+            if (!isset($groups[$groupCode])) {
+                throw new Exception("Can't find group {$groupCode}");
+            }
+            if (!isset($tasks[$taskLetter])) {
+                throw new Exception("Can't find task {$taskLetter}");
+            }
+            $res = HighloadBlockRightsTable::add([
+                'HL_ID' => $hlId,
+                'ACCESS_CODE' => "G{$groups[$groupCode]['ID']}",
+                'TASK_ID' => $tasks[$taskLetter]['ID'],
+            ]);
+            if (!$res->isSuccess()) {
+                throw new Exception("Can't creare {$groupCode} {$taskLetter} right for highload block: " . implode(', ', $res->getErrorMessages()));
+            }
+        }
     }
 
     /**
