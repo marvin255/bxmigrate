@@ -23,6 +23,9 @@ class <?php echo $name; if (!empty($parentClass)) {
         return $this->HLCreate([
             'NAME' => '<?php echo ucfirst($smart_param_1); ?>',
             'TABLE_NAME' => '', //insert data base table name
+            'LANGS' => [
+                'ru' => '<?php echo ucfirst($smart_param_1); ?>',
+            ],
         ]);
     }
 }
