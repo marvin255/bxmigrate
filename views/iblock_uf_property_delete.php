@@ -14,6 +14,7 @@ class <?php echo $name; if (!empty($parentClass)) {
     {
         $id = $this->IblockGetIdByCode('<?php echo mb_strtolower($smart_param_1); ?>');
         $entity = 'IBLOCK_' . $id . '_SECTION';
+
         return $this->UFDelete($entity, 'UF_<?php echo mb_strtoupper($smart_param_2); ?>');
     }
 
@@ -23,6 +24,7 @@ class <?php echo $name; if (!empty($parentClass)) {
     public function down()
     {
         $id = $this->IblockGetIdByCode('<?php echo mb_strtolower($smart_param_1); ?>');
+
         return $this->UFCreate([
             'FIELD_NAME' => 'UF_<?php echo mb_strtoupper($smart_param_2); ?>',
             'ENTITY_ID' => 'IBLOCK_' . $id . '_SECTION',

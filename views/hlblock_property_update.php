@@ -13,6 +13,7 @@ class <?php echo $name; if (!empty($parentClass)) {
     public function up()
     {
         $id = $this->HLGetIdByCode('<?php echo ucfirst($smart_param_1); ?>');
+
         return $this->UFUpdate([
             'ENTITY_ID' => 'HLBLOCK_' . $id,
             'FIELD_NAME' => 'UF_<?php echo mb_strtoupper($smart_param_2); ?>',
@@ -25,6 +26,7 @@ class <?php echo $name; if (!empty($parentClass)) {
     public function down()
     {
         $id = $this->HLGetIdByCode('<?php echo ucfirst($smart_param_1); ?>');
+
         return $this->UFUpdate([
             'ENTITY_ID' => 'HLBLOCK_' . $id,
             'FIELD_NAME' => 'UF_<?php echo mb_strtoupper($smart_param_2); ?>',
