@@ -1,11 +1,11 @@
-<?php echo "<?php\r\n"; ?>
+<?php echo "<?php\n"; ?>
 
 /**
  * Миграция для удаления модуля '<?php echo ucfirst($smart_param_1); ?>'.
  */
 class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
-} echo "\r\n"; ?>
+} echo "\n"; ?>
 {
     /**
      * @inheritdoc

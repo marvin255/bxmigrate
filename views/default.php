@@ -1,8 +1,11 @@
-<?php echo "<?php\r\n"; ?>
+<?php echo "<?php\n"; ?>
 
+/**
+ * Мирация '<?php echo $name; ?>'.
+ */
 class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
-} echo "\r\n"; ?>
+} echo "\n"; ?>
 {
     /**
      * @inheritdoc

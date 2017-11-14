@@ -1,11 +1,11 @@
-<?php echo "<?php\r\n"; ?>
+<?php echo "<?php\n"; ?>
 
 /**
  * Миграция для обновления типа почтового события '<?php echo ucfirst($smart_param_1); ?>' для языка '<?php echo ucfirst($smart_param_2); ?>'.
  */
 class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
-} echo "\r\n"; ?>
+} echo "\n"; ?>
 {
     /**
      * @inheritdoc

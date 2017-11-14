@@ -1,11 +1,11 @@
-<?php echo "<?php\r\n"; ?>
+<?php echo "<?php\n"; ?>
 
 /**
  * Миграция для удаления пользовательского поля '<?php echo mb_strtoupper($smart_param_1); ?>' для пользователя.
  */
 class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
-} echo "\r\n"; ?>
+} echo "\n"; ?>
 {
     /**
      * @inheritdoc
