@@ -67,17 +67,23 @@ trait HlBlock
         if ($id = $this->HLGetIdByCode($data['NAME'])) {
             $arLoad = $data;
             unset($arLoad['LANGS'], $arLoad['RIGHTS'], $arLoad['NAME']);
-            $result = HighloadBlockTable::update($id, $arLoad);
-            if ($res->isSuccess()) {
-                if (!empty($data['LANGS'])) {
-                    $this->HLSetLangs($id, $data['LANGS']);
+            if ($arLoad) {
+                $result = HighloadBlockTable::update($id, $arLoad);
+                if ($result->isSuccess()) {
+                    if (!empty($data['LANGS'])) {
+                        $this->HLSetLangs($id, $data['LANGS']);
+                    }
+                    if (!empty($data['RIGHTS'])) {
+                        $this->HLSetRights($id, $data['RIGHTS']);
+                    }
+                    $return[] = "Update {$data['NAME']} ({$id}) highload block";
+                } else {
+                    throw new Exception("Can't update {$data['NAME']} ({$id}) highload block: " . implode(', ', $result->getErrorMessages()));
                 }
-                if (!empty($data['RIGHTS'])) {
-                    $this->HLSetRights($id, $data['RIGHTS']);
-                }
-                $return[] = "Update {$data['NAME']} ({$id}) highload block";
-            } else {
-                throw new Exception("Can't update {$data['NAME']} ({$id}) highload block: " . implode(', ', $result->getErrorMessages()));
+            } elseif (!empty($data['RIGHTS'])) {
+                $this->HLSetRights($id, $data['RIGHTS']);
+            } elseif (!empty($data['LANGS'])) {
+                $this->HLSetLangs($id, $data['LANGS']);
             }
         } else {
             throw new Exception("Hl entity with name {$data['NAME']} does not exist");
