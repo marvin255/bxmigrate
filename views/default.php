@@ -1,7 +1,7 @@
 <?php echo "<?php\n"; ?>
 
 /**
- * Мирация '<?php echo $name; ?>'.
+ * Миграция '<?php echo $name; ?>'.
  */
 class <?php echo $name; if (!empty($parentClass)) {
     echo " extends {$parentClass}";
