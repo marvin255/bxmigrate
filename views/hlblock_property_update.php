@@ -17,7 +17,7 @@ class <?php echo $name; if (!empty($parentClass)) {
         return $this->UFUpdate([
             'ENTITY_ID' => 'HLBLOCK_' . $id,
             'FIELD_NAME' => 'UF_<?php echo mb_strtoupper($smart_param_2); ?>',
-        );
+        ]);
     }
 
     /**
@@ -30,6 +30,6 @@ class <?php echo $name; if (!empty($parentClass)) {
         return $this->UFUpdate([
             'ENTITY_ID' => 'HLBLOCK_' . $id,
             'FIELD_NAME' => 'UF_<?php echo mb_strtoupper($smart_param_2); ?>',
-        );
+        ]);
     }
 }
