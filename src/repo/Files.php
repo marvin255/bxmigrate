@@ -38,7 +38,7 @@ class Files implements IMigrateRepo
      */
     public function __construct(
         $folder,
-        $templatesFolder,
+        $templatesFolder = null,
         $parentClass = '\\marvin255\\bxmigrate\\migrate\\Coded',
         $fileNamePrefix = 'migrate'
     ) {
