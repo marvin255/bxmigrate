@@ -11,8 +11,8 @@
         "psr-4": { "marvin255\\bxmigrate\\": "src/", "marvin255\\bxmigrate\\tests\\": "tests/" }
     },
     "require-dev": {
-        "phpunit/phpunit": "<=5.0",
-        "friendsofphp/php-cs-fixer": "<2.6.0",
+        "phpunit/phpunit": "^4.0",
+        "friendsofphp/php-cs-fixer": "^2.2.0",
         "sebastian/phpcpd": "*",
         "phpmetrics/phpmetrics": "*"
     },
