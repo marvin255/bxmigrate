@@ -21,7 +21,7 @@ class Autoloader
     {
         self::$_path = $path ? $path : dirname(__FILE__);
 
-        return spl_autoload_register(array(__CLASS__, 'load'), true, true);
+        return spl_autoload_register([__CLASS__, 'load'], true, true);
     }
 
     /**

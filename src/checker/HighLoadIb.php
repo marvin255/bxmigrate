@@ -140,10 +140,10 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     {
         $modelName = $this->getModelName();
         //проверяем существует ли таблица миграций
-        $filter = array(
-            'select' => array('ID', 'NAME', 'TABLE_NAME'),
-            'filter' => array('=TABLE_NAME' => $this->tableName),
-        );
+        $filter = [
+            'select' => ['ID', 'NAME', 'TABLE_NAME'],
+            'filter' => ['=TABLE_NAME' => $this->tableName],
+        ];
         $hlblock = HighloadBlockTable::getList($filter)->fetch();
         //создаем таблицу, если она не существует
         if (empty($hlblock['ID'])) {
