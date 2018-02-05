@@ -15,7 +15,7 @@ class <?php echo $name; if (!empty($parentClass)) {
         return $this->UFUpdate([
             'ENTITY_ID' => 'USER',
             'FIELD_NAME' => 'UF_<?php echo mb_strtoupper($smart_param_1); ?>',
-        );
+        ]);
     }
 
     /**
@@ -26,6 +26,6 @@ class <?php echo $name; if (!empty($parentClass)) {
         return $this->UFUpdate([
             'ENTITY_ID' => 'USER',
             'FIELD_NAME' => 'UF_<?php echo mb_strtoupper($smart_param_1); ?>',
-        );
+        ]);
     }
 }
