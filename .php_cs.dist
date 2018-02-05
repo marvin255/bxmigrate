@@ -1,16 +1,17 @@
 <?php
 
-$finder = PhpCsFixer\Finder::create()
-    ->exclude('views')
-    ->in(__DIR__)
-;
+$finder = PhpCsFixer\Finder::create()->in(__DIR__);
 
-return PhpCsFixer\Config::create()
-    ->setRules([
-        '@Symfony' => true,
-        'new_with_braces' => false,
-        'phpdoc_inline_tag' => false,
-        'concat_space' => ['spacing' => 'one'],
-    ])
-    ->setFinder($finder)
-;
+$rules = [
+    '@Symfony' => true,
+    'new_with_braces' => false,
+    'phpdoc_inline_tag' => false,
+    'concat_space' => ['spacing' => 'one'],
+    'array_syntax' => ['syntax' => 'short'],
+];
+
+if (class_exists('\\PhpCsFixer\\Fixer\\ControlStructure\\YodaStyleFixer')) {
+    $rules['yoda_style'] = false;
+}
+
+return PhpCsFixer\Config::create()->setRules($rules)->setFinder($finder);
