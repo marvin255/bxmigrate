@@ -2,7 +2,6 @@
 ==================================
 
 [![Latest Stable Version](https://poser.pugx.org/marvin255/bxmigrate/v/stable.png)](https://packagist.org/packages/marvin255/bxmigrate)
-[![Total Downloads](https://poser.pugx.org/marvin255/bxmigrate/downloads.png)](https://packagist.org/packages/marvin255/bxmigrate)
 [![License](https://poser.pugx.org/marvin255/bxmigrate/license.svg)](https://packagist.org/packages/marvin255/bxmigrate)
 [![Build Status](https://travis-ci.org/marvin255/bxmigrate.svg?branch=master)](https://travis-ci.org/marvin255/bxmigrate)
 
