@@ -81,6 +81,9 @@ trait IblockProperty
             'CHECK_PERMISSIONS' => 'N',
         ]);
         if ($ob = $res->Fetch()) {
+            if (!empty($ob['USER_TYPE']) && empty($data['USER_TYPE'])) {
+                $data['USER_TYPE'] = $ob['USER_TYPE'];
+            }
             $ib = new CIBlockProperty();
             $id = $ib->Update($ob['ID'], $data);
             if ($id) {
