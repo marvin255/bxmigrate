@@ -18,7 +18,7 @@
 
 ```javascript
 "require": {
-    "marvin255/bxmigrate": "~1.0"
+    "marvin255/bxmigrate": "~2.0"
 }
 ```
 
