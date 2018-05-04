@@ -9,7 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use marvin255\bxmigrate\repo\Files;
 use marvin255\bxmigrate\checker\HighLoadIb;
 use marvin255\bxmigrate\manager\Simple;
-use InvalidArgumentException;
 
 /**
  * Консольная команда для Symfony console, которая применяет миграции.
@@ -19,17 +18,25 @@ class SymphonyUp extends Command
     /**
      * @var string
      */
-    protected $migrationPath = null;
+    protected $migrationPath;
 
-    public function __construct($migrationPath)
+    /**
+     * Задает путь к папке с миграциями.
+     *
+     * @param string $migrationPath
+     *
+     * @return self
+     */
+    public function setMigrationPath($migrationPath)
     {
-        if (empty($migrationPath)) {
-            throw new InvalidArgumentException('Migration path can not be empty');
-        }
         $this->migrationPath = $migrationPath;
-        parent::__construct();
+
+        return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function configure()
     {
         $this->setName('bxmigrate:up')
@@ -41,6 +48,9 @@ class SymphonyUp extends Command
             );
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $count = $input->getArgument('count') ?: null;

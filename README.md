@@ -73,9 +73,9 @@ use Symfony\Component\Console\Application;
 $application = new Application();
 
 //Определяем команды для миграций.
-$application->add(new \marvin255\bxmigrate\cli\SymphonyUp(CLI_MIGRATIONS_PATH));
-$application->add(new \marvin255\bxmigrate\cli\SymphonyDown(CLI_MIGRATIONS_PATH));
-$application->add(new \marvin255\bxmigrate\cli\SymphonyCreate(CLI_MIGRATIONS_PATH));
+$application->add((new \marvin255\bxmigrate\cli\SymphonyUp)->setMigrationPath(CLI_MIGRATIONS_PATH));
+$application->add((new \marvin255\bxmigrate\cli\SymphonyDown)->setMigrationPath(CLI_MIGRATIONS_PATH));
+$application->add((new \marvin255\bxmigrate\cli\SymphonyCreate)->setMigrationPath(CLI_MIGRATIONS_PATH));
 
 //Запускаем команду на исполнение.
 $application->run();
