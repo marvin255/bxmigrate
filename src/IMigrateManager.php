@@ -47,6 +47,13 @@ interface IMigrateManager
     public function refresh($name);
 
     /**
+     * Помечает миграцию с указанным именем пройденной без запускаса миграции.
+     *
+     * @param string $name
+     */
+    public function check($name);
+
+    /**
      * Создает новую миграцию с указанным именем.
      *
      * @param string $name

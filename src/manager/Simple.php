@@ -171,6 +171,26 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     /**
      * @inheritdoc
      */
+    public function check($name)
+    {
+        try {
+            $this->notify("Checking {$name} migration");
+            if (!$this->repo->isMigrationExists($name)) {
+                $this->notify("There is no {$name} migration");
+            } elseif ($this->checker->isChecked($name)) {
+                $this->notify('Migration is already checked');
+            } else {
+                $this->checker->check($name);
+                $this->notify('Migration checked');
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function create($name)
     {
         try {

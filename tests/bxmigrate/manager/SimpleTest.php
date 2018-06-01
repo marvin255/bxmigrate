@@ -398,6 +398,75 @@ class SimpleTest extends BaseCase
     /**
      * @test
      */
+    public function testCheck()
+    {
+        $migration = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration->expects($this->never())->method('managerUp');
+
+        $migration2 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration2->expects($this->never())->method('managerUp');
+
+        $migration3 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration3->expects($this->never())->method('managerUp');
+
+        $migrationToUp = 'migration_to_up_2';
+        $migrationToUpAlreadySet = 'migration_to_up_3';
+        $migrations = [
+            'migration_to_up' => $migration,
+            'migration1' => null,
+            'migration_to_up_2' => $migration2,
+            'migration2' => null,
+            'migration3' => null,
+            'migration_to_up_3' => $migration3,
+        ];
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(array_keys($migrations)));
+        $repo->method('instantiateMigration')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name];
+        }));
+        $repo->method('isMigrationExists')->will($this->returnCallback(function ($name) use ($migrations) {
+            return array_key_exists($name, $migrations);
+        }));
+
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnCallback(function ($name) use ($migrations, $migrationToUpAlreadySet) {
+            return $migrations[$name] === null || $name === $migrationToUpAlreadySet;
+        }));
+        $checker->expects($this->once())->method('check')->with($this->equalTo($migrationToUp));
+
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->check($migrationToUp);
+        $manager->check($migrationToUpAlreadySet);
+        $manager->check('unexisted_name');
+    }
+
+    /**
+     * @test
+     */
+    public function testCheckException()
+    {
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
+            ->getMock();
+        $repo->method('isMigrationExists')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('isChecked')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('instantiateMigration')->will($this->throwException(new \Exception('test exception')));
+
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('error');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->check('test');
+    }
+
+    /**
+     * @test
+     */
     public function testCreate()
     {
         $name = 'migration_' . mt_rand();
