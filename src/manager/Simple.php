@@ -75,29 +75,29 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
      */
     public function down($count = null)
     {
-        $this->notifier->info('Running down migrations:', true);
         try {
-            $count = $count === null ? 1 : $count;
+            $this->notify('Running down migrations:');
+
             $migrations = array_reverse($this->repo->getMigrations());
-            $upped = 0;
+            $count = intval($count) ?: 1;
+            $downed = 0;
+
             foreach ($migrations as $migrationName) {
-                if (
-                    !$this->checker->isChecked($migrationName)
-                    || $count && !is_numeric($count) && $count !== $migrationName
-                ) {
+                if (!$this->checker->isChecked($migrationName)) {
                     continue;
                 }
-                $this->notifier->info("Processing {$migrationName}");
+                $this->notify("Processing {$migrationName}");
                 $result = $this->repo->instantiateMigration($migrationName)->managerDown();
                 $this->checker->uncheck($migrationName);
-                $this->notifier->success($result, true);
-                ++$upped;
-                if ($count && ((int) $upped === (int) $count || !is_numeric($count))) {
+                $this->notify($result);
+                ++$downed;
+                if ($downed === $count) {
                     break;
                 }
             }
-            if ($upped === 0) {
-                $this->notifier->info('There are no migrations for down', true);
+
+            if ($downed === 0) {
+                $this->notify('There are no migrations for down');
             }
         } catch (\Exception $e) {
             $this->handleException($e);
