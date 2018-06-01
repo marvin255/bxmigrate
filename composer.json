@@ -5,7 +5,8 @@
     "keywords": ["bitrix", "migrations", "битрикс", "миграции"],
     "license": "MIT",
     "require": {
-        "php": ">=5.4"
+        "php": ">=5.4",
+        "psr/log": "~1.0"
     },
     "autoload": {
         "psr-4": {
