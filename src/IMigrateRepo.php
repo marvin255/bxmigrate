@@ -25,11 +25,18 @@ interface IMigrateRepo
     public function instantiateMigration($name);
 
     /**
-     * Создает в хранилище новую миграцию с указанным именем.
+     * Создает в хранилище новую миграцию с указанным именем. В результате вернет
+     * имя файла созданной миграции.
+     *
+     * Если не указан путь к фйлу с шаблоном, то будет поключен шаблон по умолчанию.
+     * С помощью третьего массива можно передать данные, которые попадут в шаблон
+     * миграции.
      *
      * @param string $name
+     * @param string $template
+     * @param array  $data
      *
      * @return string
      */
-    public function create($mName);
+    public function create($name, $template = null, array $data = []);
 }
