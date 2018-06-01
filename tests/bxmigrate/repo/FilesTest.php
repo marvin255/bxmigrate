@@ -3,8 +3,9 @@
 namespace marvin255\bxmigrate\tests\bxmigrate\repo;
 
 use marvin255\bxmigrate\repo\Files;
+use marvin255\bxmigrate\tests\BaseCase;
 
-class FilesTest extends \PHPUnit_Framework_TestCase
+class FilesTest extends BaseCase
 {
     public function testConstructorFolderException()
     {

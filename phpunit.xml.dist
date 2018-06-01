@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="tests/bootstrap.php"
-    colors="true"
+<phpunit colors="true"
     beStrictAboutTestSize="true"
     beStrictAboutTestsThatDoNotTestAnything="true">
 
@@ -14,9 +13,6 @@
     <filter>
         <whitelist>
             <directory>src</directory>
-            <exclude>
-                <file>src/Autoloader.php</file>
-            </exclude>
         </whitelist>
     </filter>
 </phpunit>
