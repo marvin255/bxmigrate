@@ -33,6 +33,10 @@ class SymphonyDown extends AbstractManagerCommand
         $count = $input->getArgument('count') ?: null;
         $manager = $this->getOrCreateMigrateManager($input, $output);
 
-        $manager->down($count);
+        if (preg_match('/.*[^0-9]+.*/', $count)) {
+            $manager->downByName($count);
+        } else {
+            $manager->down($count);
+        }
     }
 }

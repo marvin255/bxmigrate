@@ -33,6 +33,10 @@ class SymphonyUp extends AbstractManagerCommand
         $count = $input->getArgument('count') ?: null;
         $manager = $this->getOrCreateMigrateManager($input, $output);
 
-        $manager->up($count);
+        if (preg_match('/.*[^0-9]+.*/', $count)) {
+            $manager->upByName($count);
+        } else {
+            $manager->up($count);
+        }
     }
 }
