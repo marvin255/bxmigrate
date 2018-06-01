@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Консольная команда для Symfony console, которая создает новую миграцию.
  */
-class SymphonyCreate extends AbstractCommand
+class SymphonyCreate extends AbstractManagerCommand
 {
     /**
      * @inheritdoc
