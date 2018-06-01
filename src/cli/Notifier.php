@@ -14,7 +14,7 @@ class Notifier extends AbstractLogger
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface
      */
-    protected $output = null;
+    protected $output;
 
     /**
      * Задаем объект для вывода в symfony console.
