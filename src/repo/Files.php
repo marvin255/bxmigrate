@@ -75,7 +75,7 @@ class Files implements IMigrateRepo
      *
      * @throws \marvin255\bxmigrate\repo\Exception
      */
-    public function __construct($folder, $fileNamePrefix = 'migrate', $templatesFolder = __DIR__ . '/../../views')
+    public function __construct($folder, $fileNamePrefix = 'migrate', $templatesFolder = null)
     {
         if (trim($folder) === '') {
             throw new Exception("Folder parameter can't be empty");
@@ -91,6 +91,9 @@ class Files implements IMigrateRepo
         }
         $this->fileNamePrefix = trim($fileNamePrefix);
 
+        if ($templatesFolder === null) {
+            $templatesFolder = __DIR__ . '/../../views';
+        }
         if (trim($templatesFolder) === '') {
             throw new Exception("TemplatesFolder parameter can't be empty");
         } elseif (!is_dir($templatesFolder)) {

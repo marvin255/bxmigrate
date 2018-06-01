@@ -55,7 +55,7 @@ class FilesTest extends BaseCase
     {
         $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception');
 
-        $repo = new Files($this->migrationsFolder, 'test', null);
+        $repo = new Files($this->migrationsFolder, 'test', '');
     }
 
     /**

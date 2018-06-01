@@ -7,44 +7,35 @@ use marvin255\bxmigrate\tests\BaseCase;
 
 class SimpleTest extends BaseCase
 {
-    // public function testUp()
-    // {
-    //     $migration = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-    //         ->getMock();
-    //     $migration->expects($this->once())
-    //         ->method('managerUp')
-    //         ->will($this->returnValue(['test1', 'test2']));
-    //
-    //     $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
-    //         ->getMock();
-    //     $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
-    //     $repo->expects($this->once())
-    //         ->method('instantiateMigration')
-    //         ->with($this->equalTo('migration1'))
-    //         ->will($this->returnValue($migration));
-    //
-    //     $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
-    //     $checker->method('isChecked')->will($this->returnCallback(function ($name) {
-    //         return $name !== 'migration1';
-    //     }));
-    //     $checker->expects($this->once())->method('check')->with($this->equalTo('migration1'));
-    //
-    //     $notifications = [];
-    //     $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-    //     $notifier->method('info')->will($this->returnCallback(function ($message) use (&$notifications) {
-    //         $notifications['info'][] = $message;
-    //     }));
-    //     $notifier->method('success')->will($this->returnCallback(function ($message) use (&$notifications) {
-    //         $notifications['success'] = $message;
-    //     }));
-    //
-    //     $this->getManager($repo, $checker, $notifier)->up();
-    //
-    //     $this->assertSame(
-    //         ['info' => ['Running up migrations:', 'Processing migration1'], 'success' => ['test1', 'test2']],
-    //         $notifications
-    //     );
-    // }
+    public function testUp()
+    {
+        $migration = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')
+            ->getMock();
+        $migration->expects($this->once())
+            ->method('managerUp')
+            ->will($this->returnValue('migration upped'));
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
+            ->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
+        $repo->expects($this->once())
+            ->method('instantiateMigration')
+            ->with($this->equalTo('migration1'))
+            ->will($this->returnValue($migration));
+
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnCallback(function ($name) {
+            return $name !== 'migration1';
+        }));
+        $checker->expects($this->once())->method('check')->with($this->equalTo('migration1'));
+
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->up();
+    }
+
     //
     // public function testUpWithCountParam()
     // {

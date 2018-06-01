@@ -73,36 +73,36 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     /**
      * @inheritdoc
      */
-    // public function down($count = null)
-    // {
-    //     $this->notifier->info('Running down migrations:', true);
-    //     try {
-    //         $count = $count === null ? 1 : $count;
-    //         $migrations = array_reverse($this->repo->getMigrations());
-    //         $upped = 0;
-    //         foreach ($migrations as $migrationName) {
-    //             if (
-    //                 !$this->checker->isChecked($migrationName)
-    //                 || $count && !is_numeric($count) && $count !== $migrationName
-    //             ) {
-    //                 continue;
-    //             }
-    //             $this->notifier->info("Processing {$migrationName}");
-    //             $result = $this->repo->instantiateMigration($migrationName)->managerDown();
-    //             $this->checker->uncheck($migrationName);
-    //             $this->notifier->success($result, true);
-    //             ++$upped;
-    //             if ($count && ((int) $upped === (int) $count || !is_numeric($count))) {
-    //                 break;
-    //             }
-    //         }
-    //         if ($upped === 0) {
-    //             $this->notifier->info('There are no migrations for down', true);
-    //         }
-    //     } catch (\Exception $e) {
-    //         $this->handleException($e);
-    //     }
-    // }
+    public function down($count = null)
+    {
+        $this->notifier->info('Running down migrations:', true);
+        try {
+            $count = $count === null ? 1 : $count;
+            $migrations = array_reverse($this->repo->getMigrations());
+            $upped = 0;
+            foreach ($migrations as $migrationName) {
+                if (
+                    !$this->checker->isChecked($migrationName)
+                    || $count && !is_numeric($count) && $count !== $migrationName
+                ) {
+                    continue;
+                }
+                $this->notifier->info("Processing {$migrationName}");
+                $result = $this->repo->instantiateMigration($migrationName)->managerDown();
+                $this->checker->uncheck($migrationName);
+                $this->notifier->success($result, true);
+                ++$upped;
+                if ($count && ((int) $upped === (int) $count || !is_numeric($count))) {
+                    break;
+                }
+            }
+            if ($upped === 0) {
+                $this->notifier->info('There are no migrations for down', true);
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
 
     /**
      * @inheritdoc
