@@ -18,12 +18,26 @@ interface IMigrateManager
     public function up($count = null);
 
     /**
+     * Пробует найти и применить миграцию с указанным именем.
+     *
+     * @param string $name
+     */
+    public function upByName($name);
+
+    /**
      * Откатывает последнюю миграцию, если $count пустой, или указанное в $count количество  последних миграций,
      * которые значатся в качестве примененных.
      *
      * @param int $count
      */
     public function down($count = null);
+
+    /**
+     * Пробует найти и отменить миграцию с указанным именем.
+     *
+     * @param string $name
+     */
+    public function downByName($name);
 
     /**
      * Создает новую миграцию с указанным именем.

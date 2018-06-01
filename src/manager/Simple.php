@@ -73,6 +73,28 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     /**
      * @inheritdoc
      */
+    public function upByName($name)
+    {
+        try {
+            $this->notify("Running up {$name} migration");
+            if (!$this->repo->isMigrationExists($name)) {
+                $this->notify("There is no {$name} migration");
+            } elseif ($this->checker->isChecked($name)) {
+                $this->notify('Migration already set');
+            } else {
+                $this->notify("Processing {$name}");
+                $result = $this->repo->instantiateMigration($name)->managerUp();
+                $this->checker->check($name);
+                $this->notify($result);
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function down($count = null)
     {
         try {
@@ -98,6 +120,28 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
 
             if ($downed === 0) {
                 $this->notify('There are no migrations for down');
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function downByName($name)
+    {
+        try {
+            $this->notify("Running down {$name} migration");
+            if (!$this->repo->isMigrationExists($name)) {
+                $this->notify("There is no {$name} migration");
+            } elseif (!$this->checker->isChecked($name)) {
+                $this->notify('Migration already unset');
+            } else {
+                $this->notify("Processing {$name}");
+                $result = $this->repo->instantiateMigration($name)->managerDown();
+                $this->checker->uncheck($name);
+                $this->notify($result);
             }
         } catch (\Exception $e) {
             $this->handleException($e);
