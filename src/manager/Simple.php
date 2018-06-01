@@ -82,7 +82,6 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
             } elseif ($this->checker->isChecked($name)) {
                 $this->notify('Migration already set');
             } else {
-                $this->notify("Processing {$name}");
                 $result = $this->repo->instantiateMigration($name)->managerUp();
                 $this->checker->check($name);
                 $this->notify($result);
@@ -138,10 +137,31 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
             } elseif (!$this->checker->isChecked($name)) {
                 $this->notify('Migration already unset');
             } else {
-                $this->notify("Processing {$name}");
                 $result = $this->repo->instantiateMigration($name)->managerDown();
                 $this->checker->uncheck($name);
                 $this->notify($result);
+            }
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function refresh($name)
+    {
+        try {
+            $this->notify("Refreshing {$name} migration");
+            if (!$this->repo->isMigrationExists($name)) {
+                $this->notify("There is no {$name} migration");
+            } elseif (!$this->checker->isChecked($name)) {
+                $this->notify('Migration is unset');
+            } else {
+                $migration = $this->repo->instantiateMigration($name);
+                $migration->managerDown();
+                $migration->managerUp();
+                $this->notify('Migration refreshed');
             }
         } catch (\Exception $e) {
             $this->handleException($e);

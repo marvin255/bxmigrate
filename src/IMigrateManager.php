@@ -40,6 +40,13 @@ interface IMigrateManager
     public function downByName($name);
 
     /**
+     * Удаляет миграцию с указанным именем и устанавливает ее заново.
+     *
+     * @param string $name
+     */
+    public function refresh($name);
+
+    /**
      * Создает новую миграцию с указанным именем.
      *
      * @param string $name

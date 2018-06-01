@@ -76,6 +76,7 @@ $application = new Application();
 $application->add((new \marvin255\bxmigrate\cli\SymphonyUp)->setMigrationPath(CLI_MIGRATIONS_PATH));
 $application->add((new \marvin255\bxmigrate\cli\SymphonyDown)->setMigrationPath(CLI_MIGRATIONS_PATH));
 $application->add((new \marvin255\bxmigrate\cli\SymphonyCreate)->setMigrationPath(CLI_MIGRATIONS_PATH));
+$application->add((new \marvin255\bxmigrate\cli\SymphonyRefresh)->setMigrationPath(CLI_MIGRATIONS_PATH));
 
 //Запускаем команду на исполнение.
 $application->run();
@@ -150,6 +151,8 @@ $application->run();
 6. `bxmigrate:down 3` - отменить 3 последних по порядку примененных миграции,
 
 7. `bxmigrate:down my_awesome_migration` - отменить только миграцию с именем `my_awesome_migration`,
+
+8. `bxmigrate:refresh my_awesome_migration` - удаляет установленную миграцию с именем `my_awesome_migration` и устанавливает заново.
 
 
 
