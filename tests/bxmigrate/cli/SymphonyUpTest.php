@@ -28,4 +28,17 @@ class SymphonyUpTest extends BaseCase
         $command = new SymphonyUp;
         $command->setMigrateManager($manager)->run($input, $output);
     }
+
+    /**
+     * @test
+     */
+    public function testSetMigrationPath()
+    {
+        $path = 'migration_name_' . mt_rand();
+
+        $command = new SymphonyUp;
+
+        $this->assertSame($command, $command->setMigrationPath($path));
+        $this->assertSame($path, $command->getMigrationPath());
+    }
 }
