@@ -25,6 +25,15 @@ interface IMigrateRepo
     public function instantiateMigration($name);
 
     /**
+     * Проверяет существует ли миграция с указанным именем в репозитории.
+     *
+     * @param string $migrationName
+     *
+     * @return bool
+     */
+    public function isMigrationExists($migrationName);
+
+    /**
      * Создает в хранилище новую миграцию с указанным именем. В результате вернет
      * имя файла созданной миграции.
      *
@@ -39,4 +48,13 @@ interface IMigrateRepo
      * @return string
      */
     public function create($name, $template = null, array $data = []);
+
+    /**
+     * Возвращает путь до файлас миграцией по ее имени.
+     *
+     * @param string $migrationName
+     *
+     * @return string
+     */
+    public function getPathToMigrationFile($migrationName);
 }

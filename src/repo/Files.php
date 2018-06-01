@@ -120,15 +120,23 @@ class Files implements IMigrateRepo
     }
 
     /**
+     * @inheritdoc
+     */
+    public function isMigrationExists($migrationName)
+    {
+        $migrations = $this->getMigrations();
+
+        return in_array($migrationName, $migrations);
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @throws \marvin255\bxmigrate\repo\Exception
      */
     public function instantiateMigration($name)
     {
-        $migrations = $this->getMigrations();
-
-        if (!in_array($name, $migrations)) {
+        if (!$this->isMigrationExists($name)) {
             throw new Exception("Can't find file for migration with name {$name}");
         }
 
@@ -158,7 +166,7 @@ class Files implements IMigrateRepo
 
         $ts = time();
         $migrationName = "{$this->fileNamePrefix}_{$ts}_{$migrationName}";
-        $pathToFile = "{$this->folder}/{$migrationName}.php";
+        $pathToFile = $this->getPathToMigrationFile($migrationName);
         $migrationData = [
             'name' => $migrationName,
             'parentClass' => '\\marvin255\\bxmigrate\\migrate\\Coded',
@@ -180,6 +188,14 @@ class Files implements IMigrateRepo
         file_put_contents($pathToFile, $migrationText);
 
         return $migrationName;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPathToMigrationFile($migrationName)
+    {
+        return "{$this->folder}/{$migrationName}.php";
     }
 
     /**

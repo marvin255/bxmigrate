@@ -4,7 +4,6 @@ namespace marvin255\bxmigrate\tests\bxmigrate\repo;
 
 use marvin255\bxmigrate\repo\Files;
 use marvin255\bxmigrate\tests\BaseCase;
-use marvin255\bxmigrate\repo\Exception;
 use RuntimeException;
 
 class FilesTest extends BaseCase
@@ -23,7 +22,7 @@ class FilesTest extends BaseCase
      */
     public function testConstructorEmptyFolderParameterException()
     {
-        $this->setExpectedException(Exception::class);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception');
 
         $repo = new Files('');
     }
@@ -34,7 +33,7 @@ class FilesTest extends BaseCase
     public function testConstructorUnexistedFolderException()
     {
         $unexistedFolder = 'unexisted_' . mt_rand();
-        $this->setExpectedException(Exception::class, $unexistedFolder);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $unexistedFolder);
 
         $repo = new Files($unexistedFolder);
     }
@@ -44,7 +43,7 @@ class FilesTest extends BaseCase
      */
     public function testConstructorEmptyFilePrefixParameterException()
     {
-        $this->setExpectedException(Exception::class);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception');
 
         $repo = new Files($this->migrationsFolder, false);
     }
@@ -54,7 +53,7 @@ class FilesTest extends BaseCase
      */
     public function testConstructorEmptyTemplatesFolderParameterException()
     {
-        $this->setExpectedException(Exception::class);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception');
 
         $repo = new Files($this->migrationsFolder, 'test', null);
     }
@@ -65,7 +64,7 @@ class FilesTest extends BaseCase
     public function testConstructorUnexistedTemplatesFolderException()
     {
         $unexistedFolder = 'unexisted_' . mt_rand();
-        $this->setExpectedException(Exception::class, $unexistedFolder);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $unexistedFolder);
 
         $repo = new Files($this->migrationsFolder, 'test', $unexistedFolder);
     }
@@ -107,7 +106,7 @@ class FilesTest extends BaseCase
         $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
         $migration = 'cant_find_this_migration';
 
-        $this->setExpectedException(Exception::class, $migration);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $migration);
         $migrationObject = $repo->instantiateMigration($migration);
     }
 
@@ -119,7 +118,7 @@ class FilesTest extends BaseCase
         $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
         $migration = 'test_migration_1';
 
-        $this->setExpectedException(Exception::class, $migration);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $migration);
         $migrationObject = $repo->instantiateMigration($migration);
     }
 
@@ -165,7 +164,7 @@ class FilesTest extends BaseCase
         $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
         $migration = './~\\';
 
-        $this->setExpectedException(Exception::class, $migration);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $migration);
         $migrationName = $repo->create($migration);
     }
 
@@ -178,7 +177,7 @@ class FilesTest extends BaseCase
         $template = 'unexisted_template';
         $migration = 'test_migration';
 
-        $this->setExpectedException(Exception::class, $template);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $template);
         $migrationName = $repo->create($migration, $template);
     }
 

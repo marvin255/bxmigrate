@@ -4,7 +4,6 @@ namespace marvin255\bxmigrate\tests\bxmigrate\repo;
 
 use marvin255\bxmigrate\tests\BaseCase;
 use marvin255\bxmigrate\cli\Notifier;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class NotifierTest extends BaseCase
 {
@@ -15,7 +14,8 @@ class NotifierTest extends BaseCase
     {
         $message = 'message_' . mt_rand();
 
-        $output = $this->getMockBuilder(OutputInterface::class)
+        $output = $this->getMockBuilder('\\Symfony\\Component\\Console\\Output\\OutputInterface')
+            ->disableOriginalConstructor()
             ->getMock();
         $output->expects($this->once())
             ->method('writeln')
@@ -32,7 +32,8 @@ class NotifierTest extends BaseCase
     {
         $message = 'message_' . mt_rand();
 
-        $output = $this->getMockBuilder(OutputInterface::class)
+        $output = $this->getMockBuilder('\\Symfony\\Component\\Console\\Output\\OutputInterface')
+            ->disableOriginalConstructor()
             ->getMock();
         $output->expects($this->once())
             ->method('writeln')

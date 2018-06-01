@@ -3,10 +3,7 @@
 namespace marvin255\bxmigrate\tests\bxmigrate\repo;
 
 use marvin255\bxmigrate\tests\BaseCase;
-use marvin255\bxmigrate\IMigrateManager;
 use marvin255\bxmigrate\cli\SymphonyDown;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class SymphonyDownTest extends BaseCase
 {
@@ -17,13 +14,19 @@ class SymphonyDownTest extends BaseCase
     {
         $count = mt_rand();
 
-        $manager = $this->getMockBuilder(IMigrateManager::class)->getMock();
+        $manager = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateManager')
+            ->disableOriginalConstructor()
+            ->getMock();
         $manager->expects($this->once())->method('down')->with($this->equalTo($count));
 
-        $input = $this->getMockBuilder(InputInterface::class)->getMock();
+        $input = $this->getMockBuilder('\\Symfony\\Component\\Console\\Input\\InputInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
         $input->method('getArgument')->with($this->equalTo('count'))->will($this->returnValue($count));
 
-        $output = $this->getMockBuilder(OutputInterface::class)->getMock();
+        $output = $this->getMockBuilder('\\Symfony\\Component\\Console\\Output\\OutputInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $command = new SymphonyDown;
         $command->setMigrateManager($manager)->run($input, $output);
