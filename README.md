@@ -53,29 +53,30 @@
 <?php
 
 //Данный файл называется cli.php и расположен на уровень выше document root веб-сервера (папка web).
-$_SERVER['DOCUMENT_ROOT'] = realpath(__DIR__.'/web');
+$_SERVER['DOCUMENT_ROOT'] = realpath(__DIR__ . '/web');
 $DOCUMENT_ROOT = $_SERVER['DOCUMENT_ROOT'];
 
 //Папка с миграциями должна быть создана и находиться рядом с этим скриптом (папка migrations).
-define('CLI_MIGRATIONS_PATH', __DIR__.'/migrations');
+define('CLI_MIGRATIONS_PATH', __DIR__ . '/migrations');
 
-//Отключаем сбор статистики и проверку событий и агентов.
+//Отключаем сбор статистики, проверку событий и агентов.
 define('NO_KEEP_STATISTIC', true);
 define('NOT_CHECK_PERMISSIONS', true);
 define('CHK_EVENT', true);
 
-//Подключаем ядро битрикса.
-require_once(__DIR__.'/vendor/marvin255/bxmigrate/src/Autoloader.php');
-require $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php';
+//Подключаем загрузку классов composer.
+require_once __DIR__ . '/vendor/autoload.php';
 
-//Подключаем Symfony console
-use Symfony\Component\Console\Application;
-$application = new Application();
+//Подключаем ядро битрикса.
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php';
+
+//Создаем приложение Symfony console.
+$application = new \Symfony\Component\Console\Application;
 
 //Регистрируем команды для миграций.
-\marvin255\bxmigrate\cli\Factory::registerCommands($application);
+\marvin255\bxmigrate\cli\Factory::registerCommands($application, CLI_MIGRATIONS_PATH);
 
-//Запускаем команду на исполнение.
+//Запускаем приложение на исполнение.
 $application->run();
 ```
 
