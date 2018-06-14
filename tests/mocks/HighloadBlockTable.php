@@ -81,7 +81,7 @@ class HighloadBlockTable
      *
      * @return Entity|null
      */
-    public function compileEntity(array $entity)
+    public static function compileEntity(array $entity)
     {
         $return = null;
         if (!empty($entity['ID'])) {
