@@ -72,12 +72,8 @@ require $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.ph
 use Symfony\Component\Console\Application;
 $application = new Application();
 
-//Определяем команды для миграций.
-$application->add((new \marvin255\bxmigrate\cli\SymphonyUp)->setMigrationPath(CLI_MIGRATIONS_PATH));
-$application->add((new \marvin255\bxmigrate\cli\SymphonyDown)->setMigrationPath(CLI_MIGRATIONS_PATH));
-$application->add((new \marvin255\bxmigrate\cli\SymphonyCreate)->setMigrationPath(CLI_MIGRATIONS_PATH));
-$application->add((new \marvin255\bxmigrate\cli\SymphonyRefresh)->setMigrationPath(CLI_MIGRATIONS_PATH));
-$application->add((new \marvin255\bxmigrate\cli\SymphonyCheck)->setMigrationPath(CLI_MIGRATIONS_PATH));
+//Регистрируем команды для миграций.
+\marvin255\bxmigrate\cli\Factory::registerCommands($application);
 
 //Запускаем команду на исполнение.
 $application->run();
