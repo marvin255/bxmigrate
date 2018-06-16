@@ -264,7 +264,7 @@ class Files implements IMigrateRepo
     protected function clearMigartionName($name)
     {
         $return = preg_replace('/[^0-9a-z_]/i', '_', $name);
-        $return = trim($return, ' \t\n\r\0\x0B_');
+        $return = trim($return, " \t\n\r\0\x0B_");
 
         return $return;
     }

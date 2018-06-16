@@ -128,7 +128,7 @@ class FilesTest extends BaseCase
     public function testCreate()
     {
         $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
-        $migrationName = 'created_migration_' . mt_rand();
+        $migrationName = 'created_migration_' . mt_rand() . '_ntr';
         $testParameter = 'test_parameter_' . mt_rand();
 
         $createdMigrationName = $repo->create(
