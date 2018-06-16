@@ -52,7 +52,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
                 if ($this->checker->isChecked($migrationName)) {
                     continue;
                 }
-                $this->notify("Processing '{$migrationName}'");
+                $this->notify("Processing '{$migrationName}':");
                 $result = $this->repo->instantiateMigration($migrationName)->managerUp();
                 $this->checker->check($migrationName);
                 $this->notify($result);
@@ -107,7 +107,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
                 if (!$this->checker->isChecked($migrationName)) {
                     continue;
                 }
-                $this->notify("Processing {$migrationName}");
+                $this->notify("Processing '{$migrationName}':");
                 $result = $this->repo->instantiateMigration($migrationName)->managerDown();
                 $this->checker->uncheck($migrationName);
                 $this->notify($result);
