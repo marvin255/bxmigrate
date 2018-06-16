@@ -14,12 +14,10 @@
 
 Устанавливается с помощью [Composer](https://getcomposer.org/doc/00-intro.md).
 
-Добавьте в ваш composer.json в раздел `require`:
+Выполните команду в папке вашего проекта:
 
-```javascript
-"require": {
-    "marvin255/bxmigrate": "~3.0"
-}
+```
+composer require marvin255/bxmigrate:~3.0
 ```
 
 
