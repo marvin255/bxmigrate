@@ -52,7 +52,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
                 if ($this->checker->isChecked($migrationName)) {
                     continue;
                 }
-                $this->notify("Processing {$migrationName}");
+                $this->notify("Processing '{$migrationName}'");
                 $result = $this->repo->instantiateMigration($migrationName)->managerUp();
                 $this->checker->check($migrationName);
                 $this->notify($result);
@@ -76,9 +76,9 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     public function upByName($name)
     {
         try {
-            $this->notify("Running up {$name} migration");
+            $this->notify("Running up '{$name}' migration:");
             if (!$this->repo->isMigrationExists($name)) {
-                $this->notify("There is no {$name} migration");
+                $this->notify("There is no '{$name}' migration");
             } elseif ($this->checker->isChecked($name)) {
                 $this->notify('Migration already set');
             } else {
@@ -131,9 +131,9 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     public function downByName($name)
     {
         try {
-            $this->notify("Running down {$name} migration");
+            $this->notify("Running down '{$name}' migration:");
             if (!$this->repo->isMigrationExists($name)) {
-                $this->notify("There is no {$name} migration");
+                $this->notify("There is no '{$name}' migration");
             } elseif (!$this->checker->isChecked($name)) {
                 $this->notify('Migration already unset');
             } else {
@@ -152,9 +152,9 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     public function refresh($name)
     {
         try {
-            $this->notify("Refreshing {$name} migration");
+            $this->notify("Refreshing '{$name}' migration:");
             if (!$this->repo->isMigrationExists($name)) {
-                $this->notify("There is no {$name} migration");
+                $this->notify("There is no '{$name}' migration");
             } elseif (!$this->checker->isChecked($name)) {
                 $this->notify('Migration is unset');
             } else {
@@ -174,9 +174,9 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
     public function check($name)
     {
         try {
-            $this->notify("Checking {$name} migration");
+            $this->notify("Checking '{$name}' migration:");
             if (!$this->repo->isMigrationExists($name)) {
-                $this->notify("There is no {$name} migration");
+                $this->notify("There is no '{$name}' migration");
             } elseif ($this->checker->isChecked($name)) {
                 $this->notify('Migration is already checked');
             } else {

@@ -15,6 +15,10 @@ class Notifier extends AbstractLogger
      * @var \Symfony\Component\Console\Output\OutputInterface
      */
     protected $output;
+    /**
+     * @var bool
+     */
+    protected $isLineTabNeeded = false;
 
     /**
      * Задаем объект для вывода в symfony console.
@@ -38,6 +42,12 @@ class Notifier extends AbstractLogger
             LogLevel::ERROR,
         ];
         $type = in_array($level, $errors) ? 'error' : 'info';
+
+        if ($this->isLineTabNeeded) {
+            $message = '    - ' . $message;
+        } else {
+            $this->isLineTabNeeded = true;
+        }
 
         $this->output->writeln("<{$type}>{$message}</{$type}>");
     }
