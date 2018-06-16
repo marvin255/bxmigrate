@@ -3,90 +3,133 @@
 namespace marvin255\bxmigrate\repo;
 
 use marvin255\bxmigrate\IMigrateRepo;
+use DirectoryIterator;
 
 /**
- * Хранилище миграций, которое использует файлы php и классы с соответствующими именами для получения миграций.
+ * Хранилище миграций, которое использует файлы php
+ * и классы с соответствующими именами для получения миграций.
  */
 class Files implements IMigrateRepo
 {
     /**
      * @var string
      */
-    protected $folder = null;
+    protected $folder;
     /**
      * @var string
      */
-    protected $fileNamePrefix = null;
+    protected $fileNamePrefix;
     /**
      * @var string
      */
-    protected $templatesFolder = null;
+    protected $templatesFolder;
     /**
-     * @var string
+     * @var array
      */
-    protected $parentClass = null;
+    protected $migrations;
+    /**
+     * @var array
+     */
+    protected $smartViews = [
+        'iblock_uf_property_create' => '/^create_iblock_(.+)_uf_(.+)$/i',
+        'iblock_uf_property_update' => '/^update_iblock_(.+)_uf_(.+)$/i',
+        'iblock_uf_property_delete' => '/^delete_iblock_(.+)_uf_(.+)$/i',
+        'iblock_property_create' => '/^create_iblock_(.+)_property_(.+)$/i',
+        'iblock_property_update' => '/^update_iblock_(.+)_property_(.+)$/i',
+        'iblock_property_delete' => '/^delete_iblock_(.+)_property_(.+)$/i',
+        'iblock_type_create' => '/^create_iblock_type_(.+)$/i',
+        'iblock_type_delete' => '/^delete_iblock_type_(.+)$/i',
+        'iblock_create' => '/^create_iblock_(.+)$/i',
+        'iblock_update' => '/^update_iblock_(.+)$/i',
+        'iblock_delete' => '/^delete_iblock_(.+)$/i',
+
+        'hlblock_property_create' => '/^create_hlblock_(.+)_property_(.+)$/i',
+        'hlblock_property_update' => '/^update_hlblock_(.+)_property_(.+)$/i',
+        'hlblock_property_delete' => '/^delete_hlblock_(.+)_property_(.+)$/i',
+        'hlblock_create' => '/^create_hlblock_(.+)$/i',
+        'hlblock_update' => '/^update_hlblock_(.+)$/i',
+        'hlblock_delete' => '/^delete_hlblock_(.+)$/i',
+
+        'user_uf_property_create' => '/^create_user_uf_(.+)$/i',
+        'user_uf_property_update' => '/^update_user_uf_(.+)$/i',
+        'user_uf_property_delete' => '/^delete_user_uf_(.+)$/i',
+
+        'module_install' => '/^install_module_(.+)$/i',
+        'module_delete' => '/^delete_module_(.+)$/i',
+
+        'email_event_type_create' => '/^create_email_event_type_(.+)_lid_([^_]+)$/i',
+        'email_event_type_update' => '/^update_email_event_type_(.+)_lid_([^_]+)$/i',
+        'email_event_type_delete' => '/^delete_email_event_type_(.+)_lid_([^_]+)$/i',
+
+        'email_template_create' => '/^create_email_template_(.+)$/i',
+        'email_template_update' => '/^update_email_template_(.+)$/i',
+        'email_template_delete' => '/^delete_email_template_(.+)$/i',
+    ];
 
     /**
      * Задаем в конструкторе настройки хранилища.
      *
      * @param string $folder          Путь до папки, в которой хранятся миграции
-     * @param string $templatesFolder Путь до папки, в которой хранятся шаблоны для создания миграций
-     * @param string $parentClass     Класс, от которого будут унаследованы создаваемые миграции
      * @param string $fileNamePrefix  Префикс, который будет использован в имени файла миграции
+     * @param string $templatesFolder Путь до папки, в которой хранятся шаблоны для создания миграций
      *
      * @throws \marvin255\bxmigrate\repo\Exception
      */
-    public function __construct(
-        $folder,
-        $templatesFolder = null,
-        $parentClass = '\\marvin255\\bxmigrate\\migrate\\Coded',
-        $fileNamePrefix = 'migrate'
-    ) {
-        if (empty($folder) || !is_dir($folder) || !is_writable($folder)) {
-            throw new Exception(
-                'Migration folder does not exist: ' . (empty($folder) ? 'null' : $folder)
-            );
-        } else {
-            $this->folder = $folder;
+    public function __construct($folder, $fileNamePrefix = 'migrate', $templatesFolder = null)
+    {
+        if (trim($folder) === '') {
+            throw new Exception("Folder parameter can't be empty");
+        } elseif (!is_dir($folder)) {
+            throw new Exception("Folder {$folder} doesn't exist");
+        } elseif (!is_writable($folder)) {
+            throw new Exception("Folder {$folder} isn't writable");
         }
-        $templatesFolder = $templatesFolder ? $templatesFolder : __DIR__ . '/../../views';
-        if (!is_dir($templatesFolder)) {
-            throw new Exception(
-                'Migration template folder does not exist: ' . (empty($templatesFolder) ? 'null' : $templatesFolder)
-            );
-        } else {
-            $this->templatesFolder = $templatesFolder;
+        $this->folder = $folder;
+
+        if (trim($fileNamePrefix) === '') {
+            throw new Exception("FileNamePrefix parameter can't be empty");
         }
-        if (empty($parentClass)) {
-            throw new Exception('Migration parent class is empty');
-        } else {
-            $this->parentClass = $parentClass;
+        $this->fileNamePrefix = trim($fileNamePrefix);
+
+        if ($templatesFolder === null) {
+            $templatesFolder = __DIR__ . '/../../views';
         }
-        $this->fileNamePrefix = $fileNamePrefix;
+        if (trim($templatesFolder) === '') {
+            throw new Exception("TemplatesFolder parameter can't be empty");
+        } elseif (!is_dir($templatesFolder)) {
+            throw new Exception("Folder {$templatesFolder} doesn't exist");
+        }
+        $this->templatesFolder = $templatesFolder;
     }
 
     /**
-     * @var array
-     */
-    protected $migrations = null;
-
-    /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getMigrations()
     {
         if ($this->migrations === null) {
             $this->migrations = [];
-            $regexp = $this->fileNamePrefix ? '/^(' . $this->fileNamePrefix . '\S+)\.php$/' : '/^(\S+)\.php$/';
-            foreach (scandir($this->folder) as $file) {
-                if (!preg_match($regexp, $file, $matches)) {
-                    continue;
+            $regexp = '/^(' . preg_quote($this->fileNamePrefix) . '[a-zA-Z0-9_]+)\.php$/';
+            $iterator = new DirectoryIterator($this->folder);
+            foreach ($iterator as $item) {
+                if ($item->isFile() && preg_match($regexp, $item->getBasename(), $matches)) {
+                    $this->migrations[] = $matches[1];
                 }
-                $this->migrations[] = $matches[1];
             }
+            sort($this->migrations);
         }
 
         return $this->migrations;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isMigrationExists($migrationName)
+    {
+        $migrations = $this->getMigrations();
+
+        return in_array($migrationName, $migrations);
     }
 
     /**
@@ -96,16 +139,20 @@ class Files implements IMigrateRepo
      */
     public function instantiateMigration($name)
     {
-        $migrations = $this->getMigrations();
-        if (!in_array($name, $migrations)) {
+        if (!$this->isMigrationExists($name)) {
             throw new Exception("Can't find file for migration with name {$name}");
         }
-        require_once "{$this->folder}/{$name}.php";
-        if (!is_subclass_of($name, '\marvin255\bxmigrate\IMigrate')) {
-            throw new Exception("File {$name} has no migration class");
+
+        if (!class_exists($name, false)) {
+            require_once "{$this->folder}/{$name}.php";
+            if (!class_exists($name, false)) {
+                throw new Exception(
+                    "File {$this->folder}/{$name}.php has no {$name} class"
+                );
+            }
         }
 
-        return new $name();
+        return new $name;
     }
 
     /**
@@ -113,31 +160,50 @@ class Files implements IMigrateRepo
      *
      * @throws \marvin255\bxmigrate\repo\Exception
      */
-    public function create($mName)
+    public function create($name, $template = null, array $data = [])
     {
-        $name = $this->clearMigartionName($mName);
-        if ($name === '') {
-            throw new Exception('Can not create migration file for name: ' . $mName);
+        $migrationName = $this->clearMigartionName($name);
+        if ($migrationName === '') {
+            throw new Exception("Empty or wrong migration name: {$name}");
         }
-        $name = $this->fileNamePrefix . '_' . time() . '_' . $name;
-        $fileName = "{$this->folder}/{$name}.php";
-        if (file_exists($fileName)) {
-            throw new Exception('Migration already exists: ' . $mName);
-        }
-        list($viewFile, $viewData) = $this->getView($mName);
-        if (!file_exists($viewFile)) {
-            throw new Exception('Can\'t find migration template file for migration: ' . $mName);
-        }
-        $viewData['name'] = $name;
-        $viewData['parentClass'] = $this->parentClass;
-        $migration = $this->renderMigration($viewFile, $viewData);
-        file_put_contents($fileName, $migration);
 
-        return ["Migration {$mName}($fileName) created"];
+        $ts = time();
+        $migrationName = "{$this->fileNamePrefix}_{$ts}_{$migrationName}";
+        $pathToFile = $this->getPathToMigrationFile($migrationName);
+        $migrationData = [
+            'name' => $migrationName,
+            'parentClass' => '\\marvin255\\bxmigrate\\migrate\\Coded',
+        ];
+        $migrationData = array_merge($migrationData, $data);
+
+        if ($template === null) {
+            list($template, $defaultData) = $this->getDefaultView($name);
+            $migrationData = array_merge($defaultData, $migrationData);
+        }
+
+        if (!file_exists($template)) {
+            throw new Exception(
+                "Can't find migration template file {$template} for migration {$name}"
+            );
+        }
+
+        $migrationText = $this->renderMigration($template, $migrationData);
+        file_put_contents($pathToFile, $migrationText);
+
+        return $migrationName;
     }
 
     /**
-     * Рендерит файл миграции на основании указанного шаблона миграции и данных, которые были получены от пользователя.
+     * @inheritdoc
+     */
+    public function getPathToMigrationFile($migrationName)
+    {
+        return "{$this->folder}/{$migrationName}.php";
+    }
+
+    /**
+     * Рендерит файл миграции на основании указанного шаблона миграции и данных,
+     * которые были получены от пользователя.
      *
      * @param string $___view___
      * @param array  $___data___
@@ -148,6 +214,7 @@ class Files implements IMigrateRepo
     {
         ob_start();
         ob_implicit_flush(false);
+
         if ($___data___) {
             extract($___data___);
         }
@@ -165,47 +232,11 @@ class Files implements IMigrateRepo
      *
      * @return array
      */
-    protected function getView($name)
+    protected function getDefaultView($name)
     {
-        $smartViews = [
-            'iblock_uf_property_create' => '/^create_iblock_(.+)_uf_(.+)$/i',
-            'iblock_uf_property_update' => '/^update_iblock_(.+)_uf_(.+)$/i',
-            'iblock_uf_property_delete' => '/^delete_iblock_(.+)_uf_(.+)$/i',
-            'iblock_property_create' => '/^create_iblock_(.+)_property_(.+)$/i',
-            'iblock_property_update' => '/^update_iblock_(.+)_property_(.+)$/i',
-            'iblock_property_delete' => '/^delete_iblock_(.+)_property_(.+)$/i',
-            'iblock_type_create' => '/^create_iblock_type_(.+)$/i',
-            'iblock_type_delete' => '/^delete_iblock_type_(.+)$/i',
-            'iblock_create' => '/^create_iblock_(.+)$/i',
-            'iblock_update' => '/^update_iblock_(.+)$/i',
-            'iblock_delete' => '/^delete_iblock_(.+)$/i',
-
-            'hlblock_property_create' => '/^create_hlblock_(.+)_property_(.+)$/i',
-            'hlblock_property_update' => '/^update_hlblock_(.+)_property_(.+)$/i',
-            'hlblock_property_delete' => '/^delete_hlblock_(.+)_property_(.+)$/i',
-            'hlblock_create' => '/^create_hlblock_(.+)$/i',
-            'hlblock_update' => '/^update_hlblock_(.+)$/i',
-            'hlblock_delete' => '/^delete_hlblock_(.+)$/i',
-
-            'user_uf_property_create' => '/^create_user_uf_(.+)$/i',
-            'user_uf_property_update' => '/^update_user_uf_(.+)$/i',
-            'user_uf_property_delete' => '/^delete_user_uf_(.+)$/i',
-
-            'module_install' => '/^install_module_(.+)$/i',
-            'module_delete' => '/^delete_module_(.+)$/i',
-
-            'email_event_type_create' => '/^create_email_event_type_(.+)_lid_([^_]+)$/i',
-            'email_event_type_update' => '/^update_email_event_type_(.+)_lid_([^_]+)$/i',
-            'email_event_type_delete' => '/^delete_email_event_type_(.+)_lid_([^_]+)$/i',
-
-            'email_template_create' => '/^create_email_template_(.+)$/i',
-            'email_template_update' => '/^update_email_template_(.+)$/i',
-            'email_template_delete' => '/^delete_email_template_(.+)$/i',
-        ];
-
-        $view = null;
+        $view = 'default.php';
         $params = [];
-        foreach ($smartViews as $file => $regular) {
+        foreach ($this->smartViews as $file => $regular) {
             if (!preg_match($regular, $name, $matches)) {
                 continue;
             }
@@ -218,22 +249,23 @@ class Files implements IMigrateRepo
             }
             break;
         }
-        if (!$view) {
-            $view = 'default.php';
-        }
 
         return [$this->templatesFolder . '/' . $view, $params];
     }
 
     /**
-     * Очищает название миграции от невалидных символов, для использования его в качестве имени файла и класса.
+     * Очищает название миграции от невалидных символов,
+     * для использования его в качестве имени файла и класса.
      *
-     * @param string
+     * @param string $name
      *
      * @return string
      */
     protected function clearMigartionName($name)
     {
-        return trim(preg_replace('/[^0-9a-z_]/i', '_', str_replace([' ', '.', '/', '\\'], '', $name)), '_');
+        $return = preg_replace('/[^0-9a-z_]/i', '_', $name);
+        $return = trim($return, " \t\n\r\0\x0B_");
+
+        return $return;
     }
 }

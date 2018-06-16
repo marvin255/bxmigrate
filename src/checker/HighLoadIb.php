@@ -17,11 +17,11 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     /**
      * @var string
      */
-    protected $tableName = null;
+    protected $tableName;
     /**
      * @var string
      */
-    protected $compiledEntity = null;
+    protected $compiledEntity;
 
     /**
      * В конструкторе задем название таблицы базы данных, в которой будут сохранены записи о миграциях.
@@ -32,15 +32,16 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
      */
     public function __construct($tableName = 'bx_db_migrations')
     {
-        if (empty($tableName)) {
-            throw new Exception('Table name can not be empty');
+        if (!preg_match('/^[0-9a-zA-Z_]{3,}$/i', $tableName)) {
+            throw new Exception(
+                'Table name can contains only letters, numbers and _, and must be more than 3 symbols'
+            );
         }
         $this->tableName = $tableName;
-        Loader::includeModule('highloadblock');
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function isChecked($migration)
     {
@@ -56,16 +57,17 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
      */
     public function check($migration)
     {
-        $checked = $this->getChecked();
-        if (!isset($checked[$migration])) {
-            $hlblock = $this->infrastructureCheck();
-            $class = $this->compileEntity($hlblock);
+        if (!$this->isChecked($migration)) {
+            $class = $this->compileEntity();
             $result = $class::add([
                 'UF_MIGRATION_NAME' => $migration,
-                'UF_MIGRATION_DATE' => date('d.m.Y'),
+                'UF_MIGRATION_DATE' => date('d.m.Y H:i'),
             ]);
             if (!$result->isSuccess()) {
-                throw new Exception('Can\'t check migration in HL: ' . implode(', ', $result->getErrorMessages()));
+                throw new Exception(
+                    "Can't check migration in HL: "
+                    . implode(', ', $result->getErrorMessages())
+                );
             }
         }
     }
@@ -77,13 +79,15 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
      */
     public function uncheck($migration)
     {
-        $checked = $this->getChecked();
-        if (isset($checked[$migration])) {
-            $hlblock = $this->infrastructureCheck();
-            $class = $this->compileEntity($hlblock);
+        if ($this->isChecked($migration)) {
+            $checked = $this->getChecked();
+            $class = $this->compileEntity();
             $result = $class::delete($checked[$migration]['ID']);
             if (!$result->isSuccess()) {
-                throw new Exception('Can\'t delete migration in HL ' . implode(', ', $result->getErrorMessages()));
+                throw new Exception(
+                    "Can't delete migration in HL "
+                    . implode(', ', $result->getErrorMessages())
+                );
             }
         }
     }
@@ -96,11 +100,12 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     protected function getChecked()
     {
         $return = [];
-        $hlblock = $this->infrastructureCheck();
-        $class = $this->compileEntity($hlblock);
+
+        $class = $this->compileEntity();
         $res = $class::getList([
             'select' => ['*'],
         ])->fetchAll();
+
         foreach ($res as $key => $value) {
             $return[$value['UF_MIGRATION_NAME']] = $value;
         }
@@ -111,15 +116,15 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     /**
      * Битриксовая магия. Прежде, чем использовать модель hl инфоблока, ее нужно собрать.
      *
-     * @param array $hlblock
-     *
      * @return string
      */
-    protected function compileEntity(array $hlblock)
+    protected function compileEntity()
     {
         if ($this->compiledEntity === null) {
+            Loader::includeModule('highloadblock');
             global $USER_FIELD_MANAGER;
             $USER_FIELD_MANAGER->CleanCache();
+            $hlblock = $this->infrastructureCheck();
             $entity = HighloadBlockTable::compileEntity($hlblock);
             $this->compiledEntity = $entity->getDataClass();
         }
@@ -139,12 +144,14 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
     protected function infrastructureCheck()
     {
         $modelName = $this->getModelName();
+
         //проверяем существует ли таблица миграций
         $filter = [
             'select' => ['ID', 'NAME', 'TABLE_NAME'],
             'filter' => ['=TABLE_NAME' => $this->tableName],
         ];
         $hlblock = HighloadBlockTable::getList($filter)->fetch();
+
         //создаем таблицу, если она не существует
         if (empty($hlblock['ID'])) {
             $result = HighloadBlockTable::add([
@@ -153,47 +160,44 @@ class HighLoadIb implements \marvin255\bxmigrate\IMigrateChecker
             ]);
             $id = $result->getId();
             if (!$id) {
-                throw new Exception('Can\'t create HL table ' . implode(', ', $result->getErrorMessages()));
+                throw new Exception(
+                    "Can't create HL table "
+                    . implode(', ', $result->getErrorMessages())
+                );
             }
         } else {
             $id = $hlblock['ID'];
         }
-        //проверяем поля таблицы, чтобы были все
+
+        //проверяем поля таблицы
         $fields = [];
-        $rsData = CUserTypeEntity::GetList([], [
+        $rsData = CUserTypeEntity::getList([], [
             'ENTITY_ID' => "HLBLOCK_{$id}",
         ]);
-        while ($ob = $rsData->GetNext()) {
+        while ($ob = $rsData->getNext()) {
             $fields[$ob['FIELD_NAME']] = $ob['ID'];
         }
-        //название миграции
-        if (empty($fields['UF_MIGRATION_NAME'])) {
-            $obUserField = new CUserTypeEntity();
-            $idRes = $obUserField->Add([
-                'USER_TYPE_ID' => 'string',
-                'ENTITY_ID' => "HLBLOCK_{$id}",
-                'FIELD_NAME' => 'UF_MIGRATION_NAME',
-                'EDIT_FORM_LABEL' => [
-                    'ru' => 'Название миграции',
-                ],
-            ]);
-            if (!$idRes) {
-                throw new Exception('Can\'t create UF_MIGRATION_NAME property');
-            }
-        }
-        //дата миграции
-        if (empty($fields['UF_MIGRATION_DATE'])) {
-            $obUserField = new CUserTypeEntity();
-            $idRes = $obUserField->Add([
-                'USER_TYPE_ID' => 'string',
-                'ENTITY_ID' => "HLBLOCK_{$id}",
-                'FIELD_NAME' => 'UF_MIGRATION_DATE',
-                'EDIT_FORM_LABEL' => [
-                    'ru' => 'Дата миграции',
-                ],
-            ]);
-            if (!$idRes) {
-                throw new Exception('Can\'t create UF_MIGRATION_DATE property');
+
+        $requiredFields = [
+            'UF_MIGRATION_NAME' => 'Название миграции',
+            'UF_MIGRATION_DATE' => 'Дата миграции',
+        ];
+        foreach ($requiredFields as $requiredFieldName => $requiredFieldLabel) {
+            if (!isset($fields[$requiredFieldName])) {
+                $obUserField = new CUserTypeEntity;
+                $idRes = $obUserField->add([
+                    'USER_TYPE_ID' => 'string',
+                    'ENTITY_ID' => "HLBLOCK_{$id}",
+                    'FIELD_NAME' => $requiredFieldName,
+                    'EDIT_FORM_LABEL' => [
+                        'ru' => $requiredFieldLabel,
+                    ],
+                ]);
+                if (!$idRes) {
+                    throw new Exception(
+                        "Can't create {$requiredFieldName} property"
+                    );
+                }
             }
         }
 

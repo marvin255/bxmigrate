@@ -1,8 +1,8 @@
 <?php
 
-$composerAutoloaderPath = dirname(__DIR__) . '/vendor/autoload.php';
-if (file_exists($composerAutoloaderPath)) {
-    require $composerAutoloaderPath;
-} else {
-    require __DIR__ . '/../src/Autoloader.php';
-}
+require_once __DIR__ . '/mocks/UserFieldManager.php';
+require_once __DIR__ . '/mocks/Loader.php';
+require_once __DIR__ . '/mocks/QueryResult.php';
+require_once __DIR__ . '/mocks/ExecuteResult.php';
+require_once __DIR__ . '/mocks/HighloadBlockTable.php';
+require_once __DIR__ . '/mocks/CUserTypeEntity.php';

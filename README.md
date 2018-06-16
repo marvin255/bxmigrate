@@ -14,12 +14,10 @@
 
 Устанавливается с помощью [Composer](https://getcomposer.org/doc/00-intro.md).
 
-Добавьте в ваш composer.json в раздел `require`:
+Выполните команду в папке вашего проекта:
 
-```javascript
-"require": {
-    "marvin255/bxmigrate": "~2.0"
-}
+```
+composer require marvin255/bxmigrate:~3.0
 ```
 
 
@@ -39,7 +37,7 @@
 
 4. Объект менеджера миграций - связывает работу всех предыдущих объектов воедино, позволяет применить миграции, отменить, создать новую, для этого он передает контроль одному из описанных выше объектов.
 
-5. Объект-нотификатор - выводит сообщения о результатах выполнения миграций пользователю.
+5. Объект-нотификатор - выводит сообщения о результатах выполнения миграций пользователю (использует интерфейс логгера psr/log).
 
 
 
@@ -53,31 +51,32 @@
 <?php
 
 //Данный файл называется cli.php и расположен на уровень выше document root веб-сервера (папка web).
-$_SERVER['DOCUMENT_ROOT'] = realpath(__DIR__.'/web');
+$_SERVER['DOCUMENT_ROOT'] = realpath(__DIR__ . '/web');
 $DOCUMENT_ROOT = $_SERVER['DOCUMENT_ROOT'];
 
 //Папка с миграциями должна быть создана и находиться рядом с этим скриптом (папка migrations).
-define('CLI_MIGRATIONS_PATH', __DIR__.'/migrations');
+define('CLI_MIGRATIONS_PATH', __DIR__ . '/migrations');
 
-//Отключаем сбор статистики и проверку событий и агентов.
+//Отключаем сбор статистики, проверку событий и агентов.
 define('NO_KEEP_STATISTIC', true);
 define('NOT_CHECK_PERMISSIONS', true);
 define('CHK_EVENT', true);
 
+//Подключаем загрузку классов composer.
+//Файл composer.json расположен на том же уровне, что и данный файл.
+//Все зависимости из composer установлены.
+require_once __DIR__ . '/vendor/autoload.php';
+
 //Подключаем ядро битрикса.
-require_once(__DIR__.'/vendor/marvin255/bxmigrate/src/Autoloader.php');
-require $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php';
 
-//Подключаем Symfony console
-use Symfony\Component\Console\Application;
-$application = new Application();
+//Создаем приложение Symfony console.
+$application = new \Symfony\Component\Console\Application;
 
-//Определяем команды для миграций.
-$application->add((new \marvin255\bxmigrate\cli\SymphonyUp)->setMigrationPath(CLI_MIGRATIONS_PATH));
-$application->add((new \marvin255\bxmigrate\cli\SymphonyDown)->setMigrationPath(CLI_MIGRATIONS_PATH));
-$application->add((new \marvin255\bxmigrate\cli\SymphonyCreate)->setMigrationPath(CLI_MIGRATIONS_PATH));
+//Регистрируем команды для миграций.
+\marvin255\bxmigrate\cli\Factory::registerCommands($application, CLI_MIGRATIONS_PATH);
 
-//Запускаем команду на исполнение.
+//Запускаем приложение на исполнение.
 $application->run();
 ```
 
@@ -150,6 +149,10 @@ $application->run();
 6. `bxmigrate:down 3` - отменить 3 последних по порядку примененных миграции,
 
 7. `bxmigrate:down my_awesome_migration` - отменить только миграцию с именем `my_awesome_migration`,
+
+8. `bxmigrate:refresh my_awesome_migration` - удаляет установленную миграцию с именем `my_awesome_migration` и устанавливает заново.
+
+9. `bxmigrate:check my_awesome_migration` - помечает миграцию с именем `my_awesome_migration` примененной без запуска самой миграции.
 
 
 

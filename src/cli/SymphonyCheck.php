@@ -9,19 +9,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Консольная команда для Symfony console, которая создает новую миграцию.
  */
-class SymphonyCreate extends AbstractManagerCommand
+class SymphonyCheck extends AbstractManagerCommand
 {
     /**
      * @inheritdoc
      */
     protected function configure()
     {
-        $this->setName('bxmigrate:create')
-            ->setDescription('Creates new migration file')
+        $this->setName('bxmigrate:check')
+            ->setDescription('Checks migration without running')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,
-                'Name of new migration'
+                'Name of migration to check'
             );
     }
 
@@ -33,6 +33,6 @@ class SymphonyCreate extends AbstractManagerCommand
         $name = $input->getArgument('name');
         $manager = $this->getOrCreateMigrateManager($input, $output);
 
-        $manager->create($name);
+        $manager->check($name);
     }
 }

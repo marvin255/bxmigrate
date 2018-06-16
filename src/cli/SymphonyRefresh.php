@@ -7,21 +7,21 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Консольная команда для Symfony console, которая создает новую миграцию.
+ * Консольная команда для Symfony console, которая обновляет миграцию с укзанным именем.
  */
-class SymphonyCreate extends AbstractManagerCommand
+class SymphonyRefresh extends AbstractManagerCommand
 {
     /**
      * @inheritdoc
      */
     protected function configure()
     {
-        $this->setName('bxmigrate:create')
-            ->setDescription('Creates new migration file')
+        $this->setName('bxmigrate:refresh')
+            ->setDescription('Refreshes migration by running down and running up again')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,
-                'Name of new migration'
+                'Name of migration to refresh'
             );
     }
 
@@ -33,6 +33,6 @@ class SymphonyCreate extends AbstractManagerCommand
         $name = $input->getArgument('name');
         $manager = $this->getOrCreateMigrateManager($input, $output);
 
-        $manager->create($name);
+        $manager->refresh($name);
     }
 }

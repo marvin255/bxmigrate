@@ -3,179 +3,272 @@
 namespace marvin255\bxmigrate\tests\bxmigrate\repo;
 
 use marvin255\bxmigrate\repo\Files;
+use marvin255\bxmigrate\tests\BaseCase;
+use RuntimeException;
 
-class FilesTest extends \PHPUnit_Framework_TestCase
+class FilesTest extends BaseCase
 {
-    public function testConstructorFolderException()
+    /**
+     * @var string
+     */
+    protected $migrationsFolder;
+    /**
+     * @var string
+     */
+    protected $templatesFolder;
+
+    /**
+     * @test
+     */
+    public function testConstructorEmptyFolderParameterException()
     {
-        $this->setExpectedException(
-            '\marvin255\bxmigrate\repo\Exception',
-            'Migration folder does not exist'
-        );
-        new Files('test_fails', 'test_fails');
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception');
+
+        $repo = new Files('');
     }
 
-    public function testConstructorTemplatesFolderException()
+    /**
+     * @test
+     */
+    public function testConstructorUnexistedFolderException()
     {
-        $this->setExpectedException(
-            '\marvin255\bxmigrate\repo\Exception',
-            'Migration template folder does not exist'
-        );
-        new Files(sys_get_temp_dir(), 'test_fails');
+        $unexistedFolder = 'unexisted_' . mt_rand();
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $unexistedFolder);
+
+        $repo = new Files($unexistedFolder);
     }
 
-    public function testConstructorParentClassException()
+    /**
+     * @test
+     */
+    public function testConstructorEmptyFilePrefixParameterException()
     {
-        $this->setExpectedException(
-            '\marvin255\bxmigrate\repo\Exception',
-            'Migration parent class is empty'
-        );
-        new Files(sys_get_temp_dir(), sys_get_temp_dir(), null);
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception');
+
+        $repo = new Files($this->migrationsFolder, false);
     }
 
+    /**
+     * @test
+     */
+    public function testConstructorEmptyTemplatesFolderParameterException()
+    {
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception');
+
+        $repo = new Files($this->migrationsFolder, 'test', '');
+    }
+
+    /**
+     * @test
+     */
+    public function testConstructorUnexistedTemplatesFolderException()
+    {
+        $unexistedFolder = 'unexisted_' . mt_rand();
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $unexistedFolder);
+
+        $repo = new Files($this->migrationsFolder, 'test', $unexistedFolder);
+    }
+
+    /**
+     * @test
+     */
     public function testGetMigrations()
     {
-        $folder = $this->getTestFolder();
-        $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
-        $repo->create('test_1');
-        $repo->create('test_2');
-        $repo->create('test_3');
-        $migrations = $repo->getMigrations();
-        $this->assertCount(3, $migrations, 'getMigrations method must return list of all migrations.');
-        foreach ($migrations as $migration) {
-            $this->assertRegExp(
-                '/prefix_\d+_(test_1|test_2|test_3)/',
-                $migration,
-                'All migrations must have properly file names'
-            );
-        }
-    }
-
-    public function testInstatntiateMigration()
-    {
-        $folder = $this->getTestFolder();
-        $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
-        $repo->create('test_1');
+        $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
 
         $migrations = $repo->getMigrations();
-        $this->assertCount(1, $migrations);
+        $migrations = $repo->getMigrations();
 
-        $this->assertInstanceOf(
-            get_class($migrationMock),
-            $repo->instantiateMigration($migrations[0])
+        $this->assertSame(
+            ['test_migration_1', 'test_migration_2'],
+            $migrations
         );
     }
 
-    public function testInstatntiateMigrationWithWrongFileName()
+    /**
+     * @test
+     */
+    public function testInstantiateMigration()
     {
-        $folder = $this->getTestFolder();
-        $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
-        $this->setExpectedException(
-            '\marvin255\bxmigrate\repo\Exception',
-            'Can\'t find file for migration with name test_1'
-        );
-        $repo->instantiateMigration('test_1');
+        $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
+
+        $migrationObject = $repo->instantiateMigration('test_migration_2');
+
+        $this->assertInstanceOf('test_migration_2', $migrationObject);
+        $this->assertSame('test 2', $migrationObject->getTestParam());
     }
 
-    public function testInstatntiateMigrationWithWrongMigrationClass()
+    /**
+     * @test
+     */
+    public function testInstantiateMigrationNoMigrationFileException()
     {
-        $folder = $this->getTestFolder();
-        $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
+        $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
+        $migration = 'cant_find_this_migration';
 
-        file_put_contents(
-            $folder . '/prefix_test_migration.php',
-            "<?php class prefix_test_migration {}\r\n;"
-        );
-        $this->setExpectedException(
-            '\marvin255\bxmigrate\repo\Exception',
-            'File prefix_test_migration has no migration class'
-        );
-        $repo->instantiateMigration('prefix_test_migration');
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $migration);
+        $migrationObject = $repo->instantiateMigration($migration);
     }
 
-    public function testCreateWithWrongName()
+    /**
+     * @test
+     */
+    public function testInstantiateMigrationNoMigrationClassException()
     {
-        $folder = $this->getTestFolder();
-        $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
-        $this->setExpectedException(
-            '\marvin255\bxmigrate\repo\Exception',
-            'Can not create migration file for name:     ~~~~~~  '
-        );
-        $repo->create('    ~~~~~~  ');
+        $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
+        $migration = 'test_migration_1';
+
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $migration);
+        $migrationObject = $repo->instantiateMigration($migration);
     }
 
-    public function testCreateWithAlreadyExistedName()
+    /**
+     * @test
+     */
+    public function testCreate()
     {
-        $folder = $this->getTestFolder();
-        $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
+        $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
+        $migrationName = 'created_migration_' . mt_rand() . '_ntr';
+        $testParameter = 'test_parameter_' . mt_rand();
 
-        file_put_contents(
-            $folder . '/prefix_' . time() . '_test_migration.php',
-            "<?php class prefix_test_migration {}\r\n;"
+        $createdMigrationName = $repo->create(
+            $migrationName,
+            $this->templatesFolder . '/default.php',
+            ['testParameter' => $testParameter]
         );
+        $migrationObject = $repo->instantiateMigration($createdMigrationName);
 
-        $this->setExpectedException(
-            '\marvin255\bxmigrate\repo\Exception',
-            'Migration already exists: test_migration'
-        );
-        $repo->create('test_migration');
+        $this->assertSame($testParameter, $migrationObject->getTestParam());
     }
 
-    public function testCreateWithEmptyMigrationTemplate()
+    /**
+     * @test
+     */
+    public function testCreateSmartTemplate()
     {
-        $folder = $this->getTestFolder();
-        $migrationMock = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $repo = new Files($folder, $folder, get_class($migrationMock), 'prefix');
+        $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
+        $moduleName = 'test.test';
+        $migrationName = "install_module_{$moduleName}";
 
-        $this->setExpectedException(
-            '\marvin255\bxmigrate\repo\Exception',
-            'Can\'t find migration template file for migration: create_iblock_type_test'
-        );
-        $repo->create('create_iblock_type_test');
+        $createdMigrationName = $repo->create($migrationName);
+        $migrationObject = $repo->instantiateMigration($createdMigrationName);
+
+        $this->assertSame($moduleName, $migrationObject->getTestParam());
     }
 
+    /**
+     * @test
+     */
+    public function testCreateEmptyNameException()
+    {
+        $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
+        $migration = './~\\';
+
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $migration);
+        $migrationName = $repo->create($migration);
+    }
+
+    /**
+     * @test
+     */
+    public function testCreateUnexistedTemplateException()
+    {
+        $repo = new Files($this->migrationsFolder, 'test', $this->templatesFolder);
+        $template = 'unexisted_template';
+        $migration = 'test_migration';
+
+        $this->setExpectedException('\\marvin255\\bxmigrate\\repo\\Exception', $template);
+        $migrationName = $repo->create($migration, $template);
+    }
+
+    /**
+     * Создаем всевременные папки и файлы для тетосв перед тестированием.
+     *
+     * @throws \RuntimeException
+     */
     public function setUp()
     {
-        $folder = $this->getTestFolder();
-        if (!is_dir($folder)) {
-            mkdir($folder);
+        $this->migrationsFolder = sys_get_temp_dir() . '/bxmigrate_migrations';
+        self::rrmdir($this->migrationsFolder);
+        if (!mkdir($this->migrationsFolder, 0777, true)) {
+            throw new RuntimeException(
+                "Can't create {$this->migrationsFolder} folder for testing"
+            );
         }
+
         file_put_contents(
-            $folder . '/default.php',
-            '<?php echo "<?php class {$name} extends {$parentClass} {}\r\n";'
+            $this->migrationsFolder . '/test_migration_1.php',
+            '<?php class test_migration_fails { public function getTestParam() { return "test 1"; } }'
+        );
+        file_put_contents(
+            $this->migrationsFolder . '/test_migration_2.php',
+            '<?php class test_migration_2 { public function getTestParam() { return "test 2"; } }'
+        );
+        file_put_contents(
+            $this->migrationsFolder . '/cant_find_this_migration.php',
+            '<?php class cant_find_this_migration { public function getTestParam() { return "cant_find_this_migration"; } }'
+        );
+
+        $this->templatesFolder = sys_get_temp_dir() . '/bxmigrate_templates';
+        self::rrmdir($this->templatesFolder);
+        if (!mkdir($this->templatesFolder, 0777, true)) {
+            throw new RuntimeException(
+                "Can't create {$this->templatesFolder} folder for testing"
+            );
+        }
+
+        file_put_contents(
+            $this->templatesFolder . '/default.php',
+            '<?php echo "<?php\n"; ?>'
+            . 'class <?php echo $name; ?> {'
+            . ' public function getTestParam() { return "<?php echo $testParameter; ?>"; }'
+            . ' }'
+        );
+        file_put_contents(
+            $this->templatesFolder . '/module_install.php',
+            '<?php echo "<?php\n"; ?>'
+            . 'class <?php echo $name; ?> {'
+            . ' public function getTestParam() { return "<?php echo $smart_param_1; ?>"; }'
+            . ' }'
         );
     }
 
+    /**
+     * Удаляем временные папки и файлы после тестирования.
+     */
     public function tearDown()
     {
-        $folder = $this->getTestFolder();
-        if (is_dir($folder)) {
-            $files = scandir($folder);
-            foreach ($files as $file) {
-                if ($file === '.' || $file === '..') {
-                    continue;
-                }
-                unlink("{$folder}/{$file}");
-            }
-            rmdir($folder);
-        }
+        self::rrmdir($this->migrationsFolder);
+        self::rrmdir($this->templatesFolder);
     }
 
-    protected function getTestFolder()
+    /**
+     * Удаляет папку вместе со всем содержимым.
+     *
+     * @param string $dir
+     *
+     * @return false
+     */
+    protected static function rrmdir($dir)
     {
-        return __DIR__ . '/bxmigrateunit';
+        $return = false;
+
+        if (is_dir($dir)) {
+            $items = scandir($dir);
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') {
+                    continue;
+                }
+                $path = "{$dir}/{$item}";
+                if (is_dir($path)) {
+                    self::rrmdir($path);
+                } else {
+                    unlink($path);
+                }
+            }
+            $return = rmdir($dir);
+        }
+
+        return $return;
     }
 }

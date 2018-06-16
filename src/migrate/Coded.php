@@ -54,7 +54,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
                 $DB->Commit();
             } catch (\Exception $e) {
                 $DB->Rollback();
-                throw new Exception(get_class($this) . ': ' . $e->getMessage(), null, $e);
+                throw $e;
             }
         }
 
@@ -78,7 +78,7 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
                 $DB->Commit();
             } catch (\Exception $e) {
                 $DB->Rollback();
-                throw new Exception(get_class($this) . ': ' . $e->getMessage(), null, $e);
+                throw $e;
             }
         }
 

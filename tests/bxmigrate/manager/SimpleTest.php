@@ -3,353 +3,511 @@
 namespace marvin255\bxmigrate\tests\bxmigrate\manager;
 
 use marvin255\bxmigrate\manager\Simple;
+use marvin255\bxmigrate\tests\BaseCase;
 
-class SimpleTest extends \PHPUnit_Framework_TestCase
+class SimpleTest extends BaseCase
 {
+    /**
+     * @test
+     */
     public function testUp()
     {
-        $migration = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $migration->expects($this->once())
-            ->method('managerUp')
-            ->will($this->returnValue(['test1', 'test2']));
+        $migration = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration->expects($this->once())->method('managerUp');
 
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
-            ->getMock();
-        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
-        $repo->expects($this->once())
-            ->method('instantiateMigration')
-            ->with($this->equalTo('migration1'))
-            ->will($this->returnValue($migration));
+        $migration2 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration2->expects($this->once())->method('managerUp');
 
-        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
-        $checker->method('isChecked')->will($this->returnCallback(function ($name) {
-            return $name !== 'migration1';
-        }));
-        $checker->expects($this->once())->method('check')->with($this->equalTo('migration1'));
+        $migration3 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration3->expects($this->never())->method('managerUp');
 
-        $notifications = [];
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('info')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['info'][] = $message;
-        }));
-        $notifier->method('success')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['success'] = $message;
+        $migrations = [
+            'migration_to_up' => $migration,
+            'migration1' => null,
+            'migration_to_up_2' => $migration2,
+            'migration2' => null,
+            'migration3' => null,
+            'migration_to_up_3' => $migration3,
+        ];
+        $checked = [];
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(array_keys($migrations)));
+        $repo->method('instantiateMigration')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name];
         }));
 
-        $this->getManager($repo, $checker, $notifier)->up();
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name] === null;
+        }));
+        $checker->method('check')->will($this->returnCallback(function ($name) use (&$checked) {
+            $checked[] = $name;
+        }));
 
-        $this->assertSame(
-            ['info' => ['Running up migrations:', 'Processing migration1'], 'success' => ['test1', 'test2']],
-            $notifications
-        );
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->up(2);
+
+        $this->assertSame(['migration_to_up', 'migration_to_up_2'], $checked);
     }
 
-    public function testUpWithCountParam()
+    /**
+     * @test
+     */
+    public function testUpException()
     {
-        $migration = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')->getMock();
+        $e = new \Exception('test exception', 0, new \Exception('previous exception'));
 
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')->getMock();
-        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
-        $repo->expects($this->once())
-            ->method('instantiateMigration')
-            ->with($this->equalTo('migration2'))
-            ->will($this->returnValue($migration));
-
-        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
             ->getMock();
-        $checker->expects($this->at(0))
-            ->method('isChecked')
-            ->with($this->equalTo('migration3'))
-            ->will($this->returnValue(true));
-        $checker->expects($this->at(1))
-            ->method('isChecked')
-            ->with($this->equalTo('migration2'))
-            ->will($this->returnValue(false));
+        $repo->method('getMigrations')->will($this->throwException($e));
 
-        $manager = $this->getManager($repo, $checker)->up(1);
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('error');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->up();
     }
 
-    public function testUpWithName()
+    /**
+     * @test
+     */
+    public function testUpByName()
     {
-        $migration = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $migration->expects($this->once())
-            ->method('managerUp')
-            ->will($this->returnValue(['test1', 'test2']));
+        $migration = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration->expects($this->never())->method('managerUp');
 
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
-            ->getMock();
-        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
-        $repo->expects($this->once())
-            ->method('instantiateMigration')
-            ->with($this->equalTo('migration2'))
-            ->will($this->returnValue($migration));
+        $migration2 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration2->expects($this->once())->method('managerUp');
 
-        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
-        $checker->method('isChecked')->will($this->returnValue(false));
-        $checker->expects($this->once())->method('check')->with($this->equalTo('migration2'));
+        $migration3 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration3->expects($this->never())->method('managerUp');
 
-        $notifications = [];
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('info')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['info'][] = $message;
+        $migrationToUp = 'migration_to_up_2';
+        $migrationToUpAlreadySet = 'migration_to_up_3';
+        $migrations = [
+            'migration_to_up' => $migration,
+            'migration1' => null,
+            'migration_to_up_2' => $migration2,
+            'migration2' => null,
+            'migration3' => null,
+            'migration_to_up_3' => $migration3,
+        ];
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(array_keys($migrations)));
+        $repo->method('instantiateMigration')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name];
         }));
-        $notifier->method('success')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['success'] = $message;
+        $repo->method('isMigrationExists')->will($this->returnCallback(function ($name) use ($migrations) {
+            return array_key_exists($name, $migrations);
         }));
 
-        $this->getManager($repo, $checker, $notifier)->up('migration2');
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnCallback(function ($name) use ($migrations, $migrationToUpAlreadySet) {
+            return $migrations[$name] === null || $name === $migrationToUpAlreadySet;
+        }));
+        $checker->expects($this->once())->method('check')->with($this->equalTo($migrationToUp));
 
-        $this->assertSame(
-            ['info' => ['Running up migrations:', 'Processing migration2'], 'success' => ['test1', 'test2']],
-            $notifications
-        );
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->upByName($migrationToUp);
+        $manager->upByName($migrationToUpAlreadySet);
+        $manager->upByName('unexisted_name');
     }
 
-    public function testUpWithEmptyMigrationsList()
+    /**
+     * @test
+     */
+    public function testUpByNameException()
     {
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
             ->getMock();
-        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
-        $repo->expects($this->never())->method('instantiateMigration');
+        $repo->method('isMigrationExists')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('isChecked')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('instantiateMigration')->will($this->throwException(new \Exception('test exception')));
 
-        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
-        $checker->method('isChecked')->will($this->returnCallback(function ($name) {
-            return true;
-        }));
-        $checker->expects($this->never())->method('check');
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
 
-        $notifications = [];
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('info')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['info'][] = $message;
-        }));
-        $notifier->method('success')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['success'] = $message;
-        }));
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('error');
 
-        $this->getManager($repo, $checker, $notifier)->up();
-
-        $this->assertSame(
-            ['info' => ['Running up migrations:', 'There are no migrations for up']],
-            $notifications
-        );
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->upByName('test');
     }
 
-    public function testUpWithexception()
-    {
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
-            ->getMock();
-        $repo->method('getMigrations')->will($this->throwException(new \Exception('test exception')));
-
-        $notifications = [];
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('error')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications = $message;
-        }));
-
-        $this->getManager($repo, null, $notifier)->up();
-
-        $this->assertContains('test exception', $notifications);
-    }
-
+    /**
+     * @test
+     */
     public function testDown()
     {
-        $migration = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
-            ->getMock();
-        $migration->expects($this->once())
-            ->method('managerDown')
-            ->will($this->returnValue(['test1', 'test2']));
+        $migration = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration->expects($this->never())->method('managerDown');
 
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
-            ->getMock();
-        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
-        $repo->expects($this->once())
-            ->method('instantiateMigration')
-            ->with($this->equalTo('migration2'))
-            ->will($this->returnValue($migration));
+        $migration2 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration2->expects($this->never())->method('managerDown');
 
-        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
-        $checker->method('isChecked')->will($this->returnCallback(function ($name) {
-            return $name === 'migration2';
-        }));
-        $checker->expects($this->once())->method('uncheck')->with($this->equalTo('migration2'));
+        $migration3 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration3->expects($this->once())->method('managerDown');
 
-        $notifications = [];
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('info')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['info'][] = $message;
-        }));
-        $notifier->method('success')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['success'] = $message;
+        $migrations = [
+            'migration_to_up' => $migration,
+            'migration1' => null,
+            'migration_to_up_2' => $migration2,
+            'migration2' => null,
+            'migration3' => null,
+            'migration_to_up_3' => $migration3,
+        ];
+        $checked = [];
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(array_keys($migrations)));
+        $repo->method('instantiateMigration')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name];
         }));
 
-        $this->getManager($repo, $checker, $notifier)->down();
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name] !== null;
+        }));
+        $checker->method('uncheck')->will($this->returnCallback(function ($name) use (&$checked) {
+            $checked[] = $name;
+        }));
 
-        $this->assertSame(
-            ['info' => ['Running down migrations:', 'Processing migration2'], 'success' => ['test1', 'test2']],
-            $notifications
-        );
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->down();
+
+        $this->assertSame(['migration_to_up_3'], $checked);
     }
 
-    public function testDownWithCountParam()
+    /**
+     * @test
+     */
+    public function testDownWithCount()
     {
-        $migration = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')->getMock();
+        $migration = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration->expects($this->never())->method('managerDown');
 
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')->getMock();
-        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
-        $repo->expects($this->once())
-            ->method('instantiateMigration')
-            ->with($this->equalTo('migration2'))
-            ->will($this->returnValue($migration));
+        $migration2 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration2->expects($this->once())->method('managerDown');
 
-        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')
-            ->getMock();
-        $checker->expects($this->at(0))
-            ->method('isChecked')
-            ->with($this->equalTo('migration1'))
-            ->will($this->returnValue(false));
-        $checker->expects($this->at(1))
-            ->method('isChecked')
-            ->with($this->equalTo('migration2'))
-            ->will($this->returnValue(true));
+        $migration3 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration3->expects($this->once())->method('managerDown');
 
-        $manager = $this->getManager($repo, $checker)->down(1);
+        $migrations = [
+            'migration_to_up' => $migration,
+            'migration1' => null,
+            'migration_to_up_2' => $migration2,
+            'migration2' => null,
+            'migration3' => null,
+            'migration_to_up_3' => $migration3,
+        ];
+        $checked = [];
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(array_keys($migrations)));
+        $repo->method('instantiateMigration')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name];
+        }));
+
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name] !== null;
+        }));
+        $checker->method('uncheck')->will($this->returnCallback(function ($name) use (&$checked) {
+            $checked[] = $name;
+        }));
+
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->down(2);
+
+        $this->assertSame(['migration_to_up_3', 'migration_to_up_2'], $checked);
     }
 
-    public function testDownWithName()
+    /**
+     * @test
+     */
+    public function testDownException()
     {
-        $migration = $this->getMockBuilder('\marvin255\bxmigrate\IMigrate')
+        $e = new \Exception('test exception', 0, new \Exception('previous exception'));
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
             ->getMock();
-        $migration->expects($this->once())
-            ->method('managerDown')
-            ->will($this->returnValue(['test1', 'test2']));
+        $repo->method('getMigrations')->will($this->throwException($e));
 
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
-            ->getMock();
-        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
-        $repo->expects($this->once())
-            ->method('instantiateMigration')
-            ->with($this->equalTo('migration2'))
-            ->will($this->returnValue($migration));
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
 
-        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
-        $checker->method('isChecked')->will($this->returnValue(true));
-        $checker->expects($this->once())->method('uncheck')->with($this->equalTo('migration2'));
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('error');
 
-        $notifications = [];
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('info')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['info'][] = $message;
-        }));
-        $notifier->method('success')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['success'] = $message;
-        }));
-
-        $this->getManager($repo, $checker, $notifier)->down('migration2');
-
-        $this->assertSame(
-            ['info' => ['Running down migrations:', 'Processing migration2'], 'success' => ['test1', 'test2']],
-            $notifications
-        );
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->down();
     }
 
-    public function testDownWithEmptyMigrationsList()
+    /**
+     * @test
+     */
+    public function testDownByName()
     {
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
-            ->getMock();
-        $repo->method('getMigrations')->will($this->returnValue(['migration3', 'migration2', 'migration1']));
-        $repo->expects($this->never())->method('instantiateMigration');
+        $migration = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration->expects($this->never())->method('managerDown');
 
-        $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
-        $checker->method('isChecked')->will($this->returnCallback(function ($name) {
-            return false;
+        $migration2 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration2->expects($this->once())->method('managerDown');
+
+        $migration3 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration3->expects($this->never())->method('managerDown');
+
+        $migrationToDown = 'migration_to_down_2';
+        $migrationToDownAlreadyUnset = 'migration_to_down_3';
+        $migrations = [
+            'migration_to_down' => $migration,
+            'migration1' => null,
+            'migration_to_down_2' => $migration2,
+            'migration2' => null,
+            'migration3' => null,
+            'migration_to_down_3' => $migration3,
+        ];
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(array_keys($migrations)));
+        $repo->method('instantiateMigration')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name];
         }));
+        $repo->method('isMigrationExists')->will($this->returnCallback(function ($name) use ($migrations) {
+            return array_key_exists($name, $migrations);
+        }));
+
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnCallback(function ($name) use ($migrations, $migrationToDownAlreadyUnset) {
+            return $migrations[$name] !== null && $name !== $migrationToDownAlreadyUnset;
+        }));
+        $checker->expects($this->once())->method('uncheck')->with($this->equalTo($migrationToDown));
+
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->downByName($migrationToDown);
+        $manager->downByName($migrationToDownAlreadyUnset);
+        $manager->downByName('unexisted_name');
+    }
+
+    /**
+     * @test
+     */
+    public function testDownByNameException()
+    {
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
+            ->getMock();
+        $repo->method('isMigrationExists')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('isChecked')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('instantiateMigration')->will($this->throwException(new \Exception('test exception')));
+
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('error');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->downByName('test');
+    }
+
+    /**
+     * @test
+     */
+    public function testRefresh()
+    {
+        $migration = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration->expects($this->never())->method('managerDown');
+        $migration->expects($this->never())->method('managerUp');
+
+        $migration2 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration2->expects($this->once())->method('managerDown');
+        $migration2->expects($this->once())->method('managerUp');
+
+        $migration3 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration3->expects($this->never())->method('managerDown');
+        $migration3->expects($this->never())->method('managerUp');
+
+        $migrationToDown = 'migration_to_down_2';
+        $migrationToDownAlreadyUnset = 'migration_to_down_3';
+        $migrations = [
+            'migration_to_down' => $migration,
+            'migration1' => null,
+            'migration_to_down_2' => $migration2,
+            'migration2' => null,
+            'migration3' => null,
+            'migration_to_down_3' => $migration3,
+        ];
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(array_keys($migrations)));
+        $repo->method('instantiateMigration')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name];
+        }));
+        $repo->method('isMigrationExists')->will($this->returnCallback(function ($name) use ($migrations) {
+            return array_key_exists($name, $migrations);
+        }));
+
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnCallback(function ($name) use ($migrations, $migrationToDownAlreadyUnset) {
+            return $migrations[$name] !== null && $name !== $migrationToDownAlreadyUnset;
+        }));
+        $checker->expects($this->never())->method('uncheck');
         $checker->expects($this->never())->method('check');
 
-        $notifications = [];
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('info')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications['info'][] = $message;
-        }));
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
 
-        $this->getManager($repo, $checker, $notifier)->down();
-
-        $this->assertSame(
-            ['info' => ['Running down migrations:', 'There are no migrations for down']],
-            $notifications
-        );
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->refresh($migrationToDown);
+        $manager->refresh($migrationToDownAlreadyUnset);
+        $manager->refresh('unexisted_name');
     }
 
-    public function testDownWithexception()
+    /**
+     * @test
+     */
+    public function testRefreshException()
     {
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
             ->getMock();
-        $repo->method('getMigrations')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('isMigrationExists')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('isChecked')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('instantiateMigration')->will($this->throwException(new \Exception('test exception')));
 
-        $notifications = [];
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('error')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications = $message;
-        }));
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
 
-        $this->getManager($repo, null, $notifier)->down();
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('error');
 
-        $this->assertContains('test exception', $notifications);
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->refresh('test');
     }
 
+    /**
+     * @test
+     */
+    public function testCheck()
+    {
+        $migration = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration->expects($this->never())->method('managerUp');
+
+        $migration2 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration2->expects($this->never())->method('managerUp');
+
+        $migration3 = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrate')->getMock();
+        $migration3->expects($this->never())->method('managerUp');
+
+        $migrationToUp = 'migration_to_up_2';
+        $migrationToUpAlreadySet = 'migration_to_up_3';
+        $migrations = [
+            'migration_to_up' => $migration,
+            'migration1' => null,
+            'migration_to_up_2' => $migration2,
+            'migration2' => null,
+            'migration3' => null,
+            'migration_to_up_3' => $migration3,
+        ];
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')->getMock();
+        $repo->method('getMigrations')->will($this->returnValue(array_keys($migrations)));
+        $repo->method('instantiateMigration')->will($this->returnCallback(function ($name) use ($migrations) {
+            return $migrations[$name];
+        }));
+        $repo->method('isMigrationExists')->will($this->returnCallback(function ($name) use ($migrations) {
+            return array_key_exists($name, $migrations);
+        }));
+
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+        $checker->method('isChecked')->will($this->returnCallback(function ($name) use ($migrations, $migrationToUpAlreadySet) {
+            return $migrations[$name] === null || $name === $migrationToUpAlreadySet;
+        }));
+        $checker->expects($this->once())->method('check')->with($this->equalTo($migrationToUp));
+
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->check($migrationToUp);
+        $manager->check($migrationToUpAlreadySet);
+        $manager->check('unexisted_name');
+    }
+
+    /**
+     * @test
+     */
+    public function testCheckException()
+    {
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
+            ->getMock();
+        $repo->method('isMigrationExists')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('isChecked')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('instantiateMigration')->will($this->throwException(new \Exception('test exception')));
+
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
+
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('error');
+
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->check('test');
+    }
+
+    /**
+     * @test
+     */
     public function testCreate()
     {
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
+        $name = 'migration_' . mt_rand();
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
             ->getMock();
-        $repo->expects($this->once())
-            ->method('create')
-            ->with($this->equalTo('test_migration'))
-            ->will($this->returnValue('test create'));
+        $repo->expects($this->once())->method('create')->with($this->equalTo($name));
 
-        $notifications = null;
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('success')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications = $message;
-        }));
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
 
-        $this->getManager($repo, null, $notifier)->create('test_migration');
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('info');
 
-        $this->assertSame('test create', $notifications);
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->create($name);
     }
 
-    public function testCreateWithException()
+    /**
+     * @test
+     */
+    public function testCreateException()
     {
-        $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')
+        $name = 'migration_' . mt_rand();
+
+        $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
             ->getMock();
         $repo->expects($this->once())
             ->method('create')
+            ->with($this->equalTo($name))
             ->will($this->throwException(new \Exception('test exception')));
 
-        $notifications = null;
-        $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        $notifier->method('error')->will($this->returnCallback(function ($message) use (&$notifications) {
-            $notifications = $message;
-        }));
+        $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
 
-        $this->getManager($repo, null, $notifier)->create('test_migration');
+        $notifier = $this->getMockBuilder('\\Psr\\Log\\LoggerInterface')->getMock();
+        $notifier->expects($this->atLeastOnce())->method('error');
 
-        $this->assertContains('test exception', $notifications);
-    }
-
-    protected function getManager($repo = null, $checker = null, $notifier = null)
-    {
-        if ($repo === null) {
-            $repo = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateRepo')->getMock();
-        }
-        if ($checker === null) {
-            $checker = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateChecker')->getMock();
-        }
-        if ($notifier === null) {
-            $notifier = $this->getMockBuilder('\marvin255\bxmigrate\IMigrateNotifier')->getMock();
-        }
-
-        return new Simple($repo, $checker, $notifier);
+        $manager = new Simple($repo, $checker, $notifier);
+        $manager->create($name);
     }
 }

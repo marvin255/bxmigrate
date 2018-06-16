@@ -2,18 +2,23 @@
 
 namespace marvin255\bxmigrate\cli;
 
-use marvin255\bxmigrate\IMigrateNotifier;
 use Symfony\Component\Console\Output\OutputInterface;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LogLevel;
 
 /**
  * Выводит сообщения о результатах миграций в консоль, через symfony console.
  */
-class Notifier implements IMigrateNotifier
+class Notifier extends AbstractLogger
 {
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface
      */
-    protected $output = null;
+    protected $output;
+    /**
+     * @var bool
+     */
+    protected $isLineTabNeeded = false;
 
     /**
      * Задаем объект для вывода в symfony console.
@@ -26,44 +31,24 @@ class Notifier implements IMigrateNotifier
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function success($messages, $setSpace = false)
+    public function log($level, $message, array $context = [])
     {
-        $this->info($messages, $setSpace);
-    }
+        $errors = [
+            LogLevel::EMERGENCY,
+            LogLevel::ALERT,
+            LogLevel::CRITICAL,
+            LogLevel::ERROR,
+        ];
+        $type = in_array($level, $errors) ? 'error' : 'info';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function info($messages, $setSpace = false)
-    {
-        $this->writeln($messages, 'info', $setSpace);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function error($messages, $setSpace = false)
-    {
-        $this->writeln($messages, 'error', $setSpace);
-    }
-
-    /**
-     * Выводит сообщения в консоль.
-     *
-     * @param array|string $messages
-     * @param string       $type
-     * @param bool         $setSpace
-     */
-    protected function writeln($messages, $type, $setSpace = false)
-    {
-        $messages = is_array($messages) ? $messages : [$messages];
-        if ($setSpace) {
-            $messages[] = '';
+        if ($this->isLineTabNeeded) {
+            $message = '    - ' . $message;
+        } else {
+            $this->isLineTabNeeded = true;
         }
-        foreach ($messages as $message) {
-            $this->output->writeln("<{$type}>{$message}</{$type}>");
-        }
+
+        $this->output->writeln("<{$type}>{$message}</{$type}>");
     }
 }
