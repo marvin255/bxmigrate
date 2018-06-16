@@ -59,9 +59,11 @@ class SimpleTest extends BaseCase
      */
     public function testUpException()
     {
+        $e = new \Exception('test exception', 0, new \Exception('previous exception'));
+
         $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
             ->getMock();
-        $repo->method('getMigrations')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('getMigrations')->will($this->throwException($e));
 
         $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
 
@@ -240,9 +242,11 @@ class SimpleTest extends BaseCase
      */
     public function testDownException()
     {
+        $e = new \Exception('test exception', 0, new \Exception('previous exception'));
+
         $repo = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateRepo')
             ->getMock();
-        $repo->method('getMigrations')->will($this->throwException(new \Exception('test exception')));
+        $repo->method('getMigrations')->will($this->throwException($e));
 
         $checker = $this->getMockBuilder('\\marvin255\\bxmigrate\\IMigrateChecker')->getMock();
 

@@ -217,7 +217,7 @@ class Simple implements \marvin255\bxmigrate\IMigrateManager
         while ($scannedException) {
             $errors[] = $scannedException->getMessage();
             $errors[] = 'In ' . $scannedException->getFile() . ' on line ' . $scannedException->getLine();
-            $scannedException = $e->getPrevious();
+            $scannedException = $scannedException->getPrevious();
         }
 
         return $this->notify($errors, 'error');
