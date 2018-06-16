@@ -17,11 +17,11 @@ class SymphonyUp extends AbstractManagerCommand
     protected function configure()
     {
         $this->setName('bxmigrate:up')
-            ->setDescription('Set up migrations')
+            ->setDescription('Sets up migration')
             ->addArgument(
                 'count',
                 InputArgument::OPTIONAL,
-                'Count of migrations to set up'
+                'Count of migrations or name of migration to set up'
             );
     }
 

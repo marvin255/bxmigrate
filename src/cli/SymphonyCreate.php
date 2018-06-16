@@ -17,11 +17,11 @@ class SymphonyCreate extends AbstractManagerCommand
     protected function configure()
     {
         $this->setName('bxmigrate:create')
-            ->setDescription('Create new migration')
+            ->setDescription('Creates new migration file')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,
-                'Create new migration'
+                'Name of new migration'
             );
     }
 

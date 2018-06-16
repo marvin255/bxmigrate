@@ -17,11 +17,11 @@ class SymphonyCheck extends AbstractManagerCommand
     protected function configure()
     {
         $this->setName('bxmigrate:check')
-            ->setDescription('Checks migration')
+            ->setDescription('Checks migration without running')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,
-                'Checks migration with no running up'
+                'Name of migration to check'
             );
     }
 

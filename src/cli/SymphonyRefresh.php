@@ -17,11 +17,11 @@ class SymphonyRefresh extends AbstractManagerCommand
     protected function configure()
     {
         $this->setName('bxmigrate:refresh')
-            ->setDescription('Refresh migration')
+            ->setDescription('Refreshes migration by running down and running up again')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,
-                'Refresh migration with name in parameter'
+                'Name of migration to refresh'
             );
     }
 

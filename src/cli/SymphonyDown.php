@@ -17,11 +17,11 @@ class SymphonyDown extends AbstractManagerCommand
     protected function configure()
     {
         $this->setName('bxmigrate:down')
-            ->setDescription('Set down migrations')
+            ->setDescription('Sets down migration')
             ->addArgument(
                 'count',
                 InputArgument::OPTIONAL,
-                'Count of migrations to set down'
+                'Count of migrations or name of migration to set down'
             );
     }
 
