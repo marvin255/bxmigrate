@@ -18,7 +18,7 @@
 
 ```javascript
 "require": {
-    "marvin255/bxmigrate": "~2.0"
+    "marvin255/bxmigrate": "~3.0"
 }
 ```
 
@@ -65,6 +65,8 @@ define('NOT_CHECK_PERMISSIONS', true);
 define('CHK_EVENT', true);
 
 //Подключаем загрузку классов composer.
+//Файл composer.json расположен на том же уровне, что и cli.php
+//Все зависимости из composer установлены.
 require_once __DIR__ . '/vendor/autoload.php';
 
 //Подключаем ядро битрикса.
