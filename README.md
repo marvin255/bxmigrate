@@ -63,7 +63,7 @@ define('NOT_CHECK_PERMISSIONS', true);
 define('CHK_EVENT', true);
 
 //Подключаем загрузку классов composer.
-//Файл composer.json расположен на том же уровне, что и cli.php
+//Файл composer.json расположен на том же уровне, что и данный файл.
 //Все зависимости из composer установлены.
 require_once __DIR__ . '/vendor/autoload.php';
 
