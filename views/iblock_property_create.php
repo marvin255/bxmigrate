@@ -12,7 +12,7 @@ class <?php echo $name; if (!empty($parentClass)) {
      */
     public function up()
     {
-        return $this->IblockPropertyCreate(
+        return $this->iblockPropertyCreate(
             '<?php echo mb_strtolower($smart_param_1); ?>',
             [
                 'NAME' => '<?php echo ucfirst($smart_param_2); ?>',
@@ -38,7 +38,7 @@ class <?php echo $name; if (!empty($parentClass)) {
      */
     public function down()
     {
-        return $this->IblockPropertyDelete(
+        return $this->iblockPropertyDelete(
             '<?php echo mb_strtolower($smart_param_1); ?>',
             '<?php echo mb_strtolower($smart_param_2); ?>'
         );
