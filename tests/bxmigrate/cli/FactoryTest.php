@@ -31,6 +31,6 @@ class FactoryTest extends BaseCase
 
         $res = Factory::registerCommands($app, sys_get_temp_dir());
 
-        $this->assertInstanceOf('\\Symfony\\Component\\Console\\Application', $app);
+        $this->assertInstanceOf('\\Symfony\\Component\\Console\\Application', $res);
     }
 }
