@@ -3,30 +3,23 @@
 namespace marvin255\bxmigrate\migrate;
 
 use Bitrix\Main\Loader;
-use marvin255\bxmigrate\migrate\traits\Module;
-use marvin255\bxmigrate\migrate\traits\HlBlock;
-use marvin255\bxmigrate\migrate\traits\UserField;
-use marvin255\bxmigrate\migrate\traits\Group;
-use marvin255\bxmigrate\migrate\traits\Iblock;
-use marvin255\bxmigrate\migrate\traits\IblockProperty;
-use marvin255\bxmigrate\migrate\traits\IblockType;
-use marvin255\bxmigrate\migrate\traits\EmailEvent;
-use marvin255\bxmigrate\migrate\traits\EmailTemplate;
+use Bitrix\Main\Application;
+use Exception;
 
 /**
  * Базовая миграция для битрикса. Изменения задаются через использование функций стандартного API битрикса.
  */
 abstract class Coded implements \marvin255\bxmigrate\IMigrate
 {
-    use Module;
-    use HlBlock;
-    use UserField;
-    use Group;
-    use Iblock;
-    use IblockProperty;
-    use IblockType;
-    use EmailEvent;
-    use EmailTemplate;
+    use traits\Module;
+    use traits\HlBlock;
+    use traits\UserField;
+    use traits\Group;
+    use traits\Iblock;
+    use traits\IblockProperty;
+    use traits\IblockType;
+    use traits\EmailEvent;
+    use traits\EmailTemplate;
 
     /**
      * В конструкторе подключаем все модули битрикса, которые будем использовать в миграции.
@@ -43,17 +36,20 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     public function managerUp()
     {
         $result = null;
-        BXClearCache(true, '/');
+
+        $this->clearCache();
+        $conn = $this->getConnection();
+
         if (method_exists($this, 'unsafeUp')) {
             $result = $this->unsafeUp();
         } else {
             global $DB;
-            $DB->StartTransaction();
+            $conn->startTransaction();
             try {
                 $result = $this->up();
-                $DB->Commit();
-            } catch (\Exception $e) {
-                $DB->Rollback();
+                $conn->commitTransaction();
+            } catch (Exception $e) {
+                $conn->rollbackTransaction();
                 throw $e;
             }
         }
@@ -67,21 +63,50 @@ abstract class Coded implements \marvin255\bxmigrate\IMigrate
     public function managerDown()
     {
         $result = null;
-        BXClearCache(true, '/');
+
+        $this->clearCache();
+        $conn = $this->getConnection();
+
         if (method_exists($this, 'unsafeDown')) {
             $result = $this->unsafeDown();
         } else {
             global $DB;
-            $DB->StartTransaction();
+            $conn->startTransaction();
             try {
                 $result = $this->down();
-                $DB->Commit();
-            } catch (\Exception $e) {
-                $DB->Rollback();
+                $conn->commitTransaction();
+            } catch (Exception $e) {
+                $conn->rollbackTransaction();
                 throw $e;
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Очищает все виды кэша.
+     */
+    protected function clearCache()
+    {
+        global $USER_FIELD_MANAGER;
+        if ($USER_FIELD_MANAGER) {
+            $USER_FIELD_MANAGER->CleanCache();
+        }
+
+        BXClearCache(true, '/');
+    }
+
+    /**
+     * Возвращает объект для соединения с бд.
+     *
+     * @return \Bitrix\Main\DB\Connection
+     */
+    protected function getConnection()
+    {
+        $connection = Application::getConnection();
+        $connection->clearCaches();
+
+        return $connection;
     }
 }
