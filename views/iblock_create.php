@@ -22,9 +22,9 @@ class <?php echo $name; if (!empty($parentClass)) {
                 'INDEX_SECTION' => 'Y',
                 'INDEX_ELEMENT' => 'Y',
                 'LIST_MODE' => 'S',
-                'LIST_PAGE_URL' => '',
-                'SECTION_PAGE_URL' => '/#SECTION_CODE_PATH#/',
-                'DETAIL_PAGE_URL' => '/#SECTION_CODE_PATH#/#CODE#/',
+                'LIST_PAGE_URL' => '/<?php echo mb_strtolower($smart_param_1); ?>/',
+                'SECTION_PAGE_URL' => '/<?php echo mb_strtolower($smart_param_1); ?>/#SECTION_CODE_PATH#/',
+                'DETAIL_PAGE_URL' => '/<?php echo mb_strtolower($smart_param_1); ?>/#SECTION_CODE_PATH#/#CODE#/',
                 'GROUP_ID' => [
                     1 => 'X',
                     2 => 'R',
