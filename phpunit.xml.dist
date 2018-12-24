@@ -7,7 +7,7 @@
 
     <testsuites>
         <testsuite name="Bxmigrate test suite">
-            <directory>tests/bxmigrate</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 

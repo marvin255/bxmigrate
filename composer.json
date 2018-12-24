@@ -5,19 +5,20 @@
     "keywords": ["bitrix", "migrations", "битрикс", "миграции"],
     "license": "MIT",
     "require": {
-        "php": ">=5.4",
-        "psr/log": "~1.0",
-        "symfony/console": "~2.8 || ~3.2"
+        "php": ">=7.0",
+        "psr/log": "^1.1",
+        "symfony/console": "^3.2"
     },
     "autoload": {
         "psr-4": {
-            "marvin255\\bxmigrate\\": "src/",
-            "marvin255\\bxmigrate\\tests\\": "tests/"
+            "Marvin255\\Bxmigrate\\": "src/",
+            "Marvin255\\Bxmigrate\\Tests\\": "tests/"
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.8",
-        "friendsofphp/php-cs-fixer": "~2.2"
+        "fzaninotto/faker": "^1.7",
+        "phpunit/phpunit": "^6.0",
+        "friendsofphp/php-cs-fixer": "^2.13"
     },
     "repositories": [
         {
