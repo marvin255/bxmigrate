@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Marvin255\Bxmigrate\Repository;
+namespace Marvin255\Bxmigrate\MigrationRepository;
 
+use Marvin255\Bxmigrate\MigrationEntity\PhpClassMigrationEntity;
+use Marvin255\Bxmigrate\MigrationEntity\MigrationEntityInterface;
 use Iterator;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -16,7 +18,7 @@ use OutOfRangeException;
 /**
  * Объект, который хранит миграции в указанной папке.
  */
-class DirectoryRepository implements RepositoryInterface
+class DirectoryMigrationRepository implements MigrationRepositoryInterface
 {
     /**
      * Путь к директории, в которой хранятся файлы миграций.
@@ -81,7 +83,7 @@ class DirectoryRepository implements RepositoryInterface
      *
      * @throws OutOfRangeException
      */
-    public function offsetGet($offset): PhpClassEntity
+    public function offsetGet($offset): PhpClassMigrationEntity
     {
         $migration = null;
 
@@ -124,9 +126,9 @@ class DirectoryRepository implements RepositoryInterface
      */
     public function offsetSet($offset, $entity)
     {
-        if ($entity instanceof EntityInterface === false) {
+        if ($entity instanceof MigrationEntityInterface === false) {
             throw new InvalidArgumentException(
-                'Value must be an ' . EntityInterface::class . ' instance.'
+                'Value must be an ' . MigrationEntityInterface::class . ' instance.'
             );
         }
 
@@ -179,11 +181,11 @@ class DirectoryRepository implements RepositoryInterface
     /**
      * @see Iterator
      */
-    public function current(): PhpClassEntity
+    public function current(): PhpClassMigrationEntity
     {
         $fileInfo = $this->getOrCreateIterator()->current();
 
-        return new PhpClassEntity($fileInfo);
+        return new PhpClassMigrationEntity($fileInfo);
     }
 
     /**

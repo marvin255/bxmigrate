@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Marvin255\Bxmigrate\Repository;
+namespace Marvin255\Bxmigrate\MigrationEntity;
 
 use SplFileInfo;
 
 /**
  * Объект, который хранит в себе информации о миграции из php класса в файле.
  */
-class PhpClassEntity implements EntityInterface
+class PhpClassMigrationEntity implements MigrationEntityInterface
 {
     /**
      * Файл, в котором хранится класс миграции.

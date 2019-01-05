@@ -1,9 +1,9 @@
 <?php
 
-namespace Marvin255\Bxmigrate\Tests\Repository;
+namespace Marvin255\Bxmigrate\Tests\MigrationRepository;
 
-use Marvin255\Bxmigrate\Repository\DirectoryRepository;
-use Marvin255\Bxmigrate\Repository\EntityInterface;
+use Marvin255\Bxmigrate\MigrationRepository\DirectoryMigrationRepository;
+use Marvin255\Bxmigrate\MigrationEntity\MigrationEntityInterface;
 use Marvin255\Bxmigrate\Tests\BaseCase;
 use InvalidArgumentException;
 use OutOfRangeException;
@@ -11,7 +11,7 @@ use OutOfRangeException;
 /**
  * Тест для проверки объекта, который хранит миграции в папке.
  */
-class DirectoryRepositoryTest extends BaseCase
+class DirectoryMigrationRepositoryTest extends BaseCase
 {
     /**
      * Каталог с тестовыми миграциями.
@@ -48,7 +48,7 @@ class DirectoryRepositoryTest extends BaseCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageRegExp('/' . preg_quote($dir, '/') . '/');
 
-        new DirectoryRepository($dir);
+        new DirectoryMigrationRepository($dir);
     }
 
     /**
@@ -62,7 +62,7 @@ class DirectoryRepositoryTest extends BaseCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageRegExp('/' . preg_quote($ext, '/') . '/');
 
-        new DirectoryRepository($this->dir, $this->prefix, $ext);
+        new DirectoryMigrationRepository($this->dir, $this->prefix, $ext);
     }
 
     /**
@@ -130,7 +130,7 @@ class DirectoryRepositoryTest extends BaseCase
         $migrationFileName = "{$this->dir}/{$migrationName}.{$this->ext}";
         $migrationContent = $this->createFakeData()->word;
 
-        $entity = $this->getMockBuilder(EntityInterface::class)
+        $entity = $this->getMockBuilder(MigrationEntityInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
         $entity->method('getName')->will($this->returnValue($migrationName));
@@ -171,8 +171,8 @@ class DirectoryRepositoryTest extends BaseCase
     /**
      * Возвращает настроенный объект репозитория.
      */
-    protected function createRepo(): DirectoryRepository
+    protected function createRepo(): DirectoryMigrationRepository
     {
-        return new DirectoryRepository($this->dir, $this->prefix, $this->ext);
+        return new DirectoryMigrationRepository($this->dir, $this->prefix, $this->ext);
     }
 }

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Marvin255\Bxmigrate\Repository;
+namespace Marvin255\Bxmigrate\MigrationEntity;
 
 /**
  * Интерфейс для объекта, который хранит в себе единичную запись о миграции
  * в репозитории.
  */
-interface EntityInterface
+interface MigrationEntityInterface
 {
     /**
      * Возвращает строковое имя данной миграции.
