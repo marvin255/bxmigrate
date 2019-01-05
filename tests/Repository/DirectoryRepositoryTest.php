@@ -3,8 +3,10 @@
 namespace Marvin255\Bxmigrate\Tests\Repository;
 
 use Marvin255\Bxmigrate\Repository\DirectoryRepository;
+use Marvin255\Bxmigrate\Repository\EntityInterface;
 use Marvin255\Bxmigrate\Tests\BaseCase;
 use InvalidArgumentException;
+use OutOfRangeException;
 
 /**
  * Тест для проверки объекта, который хранит миграции в папке.
@@ -12,16 +14,55 @@ use InvalidArgumentException;
 class DirectoryRepositoryTest extends BaseCase
 {
     /**
+     * Каталог с тестовыми миграциями.
+     *
+     * @var string
+     */
+    protected $dir = '';
+    /**
+     * Префикс для миграций.
+     *
+     * @var string
+     */
+    protected $prefix = '';
+    /**
+     * Расширений для файлов миграций.
+     *
+     * @var string
+     */
+    protected $ext = '';
+    /**
+     * Существующие файлы миграций.
+     *
+     * @var string
+     */
+    protected $migrations = [];
+
+    /**
      * Проверяет, что объект выбросит исключение, если базовой папки не существует.
      */
-    public function testConstructDirectoryDoesNotExist()
+    public function testConstructDirectoryDoesNotExistException()
     {
-        $dir = __DIR__ . '/doesnot/exists';
+        $dir = "{$this->dir}/doesnot/exists";
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageRegExp('/' . preg_quote($dir) . '/');
+        $this->expectExceptionMessageRegExp('/' . preg_quote($dir, '/') . '/');
 
         new DirectoryRepository($dir);
+    }
+
+    /**
+     * Проверяет, что объект выбросит исключение, если разрешение файлов
+     * задано неверно.
+     */
+    public function testConstructWrongExtensionException()
+    {
+        $ext = $this->createFakeData()->uuid;
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/' . preg_quote($ext, '/') . '/');
+
+        new DirectoryRepository($this->dir, $this->prefix, $ext);
     }
 
     /**
@@ -29,35 +70,109 @@ class DirectoryRepositoryTest extends BaseCase
      */
     public function testIterator()
     {
-        $migrations = [
-            'MigrationFoo',
-            'MigrationBar',
-        ];
+        $migrations = array_combine($this->migrations, $this->migrations);
 
-        $repository = new DirectoryRepository(
-            __DIR__ . '/_fixture_directory_repository',
-            '/^Migration.*\.php$/i'
-        );
+        $repository = $this->createRepo();
 
         $migrationsToTest = [];
-        foreach ($repository as $migration) {
-            $migrationsToTest[] = $migration;
+        foreach ($repository as $key => $migration) {
+            $migrationsToTest[$key] = $migration->getName();
         }
+
+        $migrationsToTest = [];
+        foreach ($repository as $key => $migration) {
+            $migrationsToTest[$key] = $migration->getName();
+        }
+
+        ksort($migrations);
+        ksort($migrationsToTest);
 
         $this->assertSame($migrations, $migrationsToTest);
     }
 
     /**
-     * Проверяет метод, который проверяет существует ли миграция.
+     * Проверяет, что объект работает в качестве ArrayAccess.
      */
-    public function testIsMigrationExists()
+    public function testArrayAccess()
     {
-        $repository = new DirectoryRepository(
-            __DIR__ . '/_fixture_directory_repository',
-            '/^Migration.*\.php$/i'
-        );
+        $migrationName = reset($this->migrations);
 
-        $this->assertTrue($repository->isMigrationExists('MigrationFoo'));
-        $this->assertFalse($repository->isMigrationExists('Bar'));
+        $repository = $this->createRepo();
+
+        $this->assertTrue(isset($repository[$migrationName]));
+        $this->assertFalse(isset($repository['Foo']));
+        $this->assertSame($migrationName, $repository[$migrationName]->getName());
+    }
+
+    /**
+     * Проверяет, что объект выбросит исключение при попытке обратиться по
+     * индексу к несуществующей миграции.
+     */
+    public function testArrayAccessOutOfRangeException()
+    {
+        $migrationName = $this->createFakeData()->word;
+
+        $repository = $this->createRepo();
+
+        $this->expectException(OutOfRangeException::class);
+        $this->expectExceptionMessageRegExp('/' . preg_quote($migrationName, '/') . '/');
+
+        $migration = $repository[$migrationName];
+    }
+
+    /**
+     * Проверяет, что объект создает и удаляет файл миграции по указанному
+     * индексу.
+     */
+    public function testArrayAccessSetAndUnset()
+    {
+        $migrationName = "{$this->prefix}N" . $this->createFakeData()->word;
+        $migrationFileName = "{$this->dir}/{$migrationName}.{$this->ext}";
+        $migrationContent = $this->createFakeData()->word;
+
+        $entity = $this->getMockBuilder(EntityInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $entity->method('getName')->will($this->returnValue($migrationName));
+        $entity->method('getContent')->will($this->returnValue($migrationContent));
+
+        $repository = $this->createRepo();
+
+        $repository[$migrationName] = $entity;
+        $this->assertFileExists($migrationFileName);
+        $this->assertSame($migrationContent, file_get_contents($migrationFileName));
+
+        unset($repository[$migrationName]);
+        $this->assertFileNotExists($migrationFileName);
+    }
+
+    /**
+     * Задаем папку с миграциями для тестов.
+     *
+     * @throws RuntimeException
+     */
+    public function setUp()
+    {
+        $this->dir = $this->getTempDir();
+        $this->prefix = 'P' . $this->createFakeData()->word;
+        $this->ext = 'e' . $this->createFakeData()->word;
+        $this->migrations = [];
+
+        for ($i = 0; $i < 3; ++$i) {
+            $migrationName = "{$this->prefix}N{$i}" . $this->createFakeData()->word;
+            $migrationPath = "{$this->dir}/{$migrationName}.{$this->ext}";
+            $this->migrations[] = $migrationName;
+            file_put_contents($migrationPath, $this->createFakeData()->word . "\r\n");
+        }
+
+        return parent::setUp();
+    }
+
+    /**
+     * Возвращает настроенный объект репозитория.
+     */
+    protected function createRepo(): DirectoryRepository
+    {
+        return new DirectoryRepository($this->dir, $this->prefix, $this->ext);
     }
 }
